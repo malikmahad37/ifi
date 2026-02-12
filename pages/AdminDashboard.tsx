@@ -2,6 +2,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Plus, Trash2, Save, X, Phone, Mail, MapPin, Globe, Package, Info, Image as ImageIcon, Type, LayoutDashboard, Inbox, Calendar, MessageSquare, Search, Edit2, CheckCircle, Star, ArrowLeft, MessageCircle } from 'lucide-react';
 import { Category, ProductSeries, ContactInfo, Inquiry } from '../types';
+import { migrateCategories } from '../lib/firebase';
+import { INITIAL_CATEGORIES } from '../constants';
 
 interface AdminDashboardProps {
   categories: Category[];
@@ -34,12 +36,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
   // Local state for editing. This is the source of truth for the UI during the session.
-  const [tempCategories, setTempCategories] = useState<Category[]>(() => [...categories]);
+  const [tempCategories, setTempCategories] = useState<Category[]>(() => [...(categories || [])]);
   const [tempContact, setTempContact] = useState<ContactInfo>({ ...contact });
 
   // Sync temp state if initial categories change externally
   useEffect(() => {
-    setTempCategories([...categories]);
+    setTempCategories([...(categories || [])]);
   }, [categories]);
 
   // Persistence handler
@@ -54,12 +56,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
 
   // Filter logic for the catalog
   const filteredCategories = useMemo(() => {
+    if (!tempCategories) return [];
     if (!searchQuery) return tempCategories;
     const query = searchQuery.toLowerCase();
     return tempCategories.filter(c =>
-      c.name.toLowerCase().includes(query) ||
-      c.nameUrdu.includes(searchQuery) ||
-      c.series.some(s => s.name.toLowerCase().includes(query))
+      c?.name?.toLowerCase().includes(query) ||
+      c?.nameUrdu?.includes(searchQuery) ||
+      (c?.series || []).some(s => s?.name?.toLowerCase().includes(query))
     );
   }, [tempCategories, searchQuery]);
 
@@ -146,6 +149,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
             <p className="text-[9px] md:text-[10px] font-black tracking-[0.5em] uppercase opacity-60">Control Panel</p>
           </div>
           <h1 className="text-4xl md:text-6xl font-black text-theme-base tracking-tighter uppercase leading-none">COMMAND</h1>
+          <button
+            onClick={() => {
+              if (confirm("Upload local data to Cloud? This will overwrite Cloud data.")) {
+                migrateCategories(INITIAL_CATEGORIES);
+                alert("Migration started. Data will appear shortly.");
+              }
+            }}
+            className="mt-2 text-[10px] bg-blue-500/20 text-blue-400 px-3 py-1 rounded border border-blue-500/30 hover:bg-blue-500/30"
+          >
+            TEST: MIGRATE DEFAULT DATA TO CLOUD
+          </button>
         </div>
 
         <div className="flex w-full md:w-auto bg-theme-base/5 p-1 rounded-2xl border border-theme-base/5 overflow-x-auto no-scrollbar">
@@ -247,8 +261,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                             </div>
                           </div>
                         </td>
-                        <td className="px-8 py-4 text-theme-base/40 text-[10px] font-black uppercase">{cat.id}</td>
-                        <td className="px-8 py-4 text-theme-base/20 text-xs font-black">{cat.series.length} series</td>
+                        <td className="px-8 py-4 text-theme-base/40 text-[10px] font-black uppercase">{cat?.id}</td>
+                        <td className="px-8 py-4 text-theme-base/20 text-xs font-black">{(cat?.series || []).length} series</td>
                         <td className="px-8 py-4 text-right">
                           <div className="flex justify-end gap-2">
                             <button onClick={() => { setSelectedCategoryId(cat.id); setViewMode('edit-category'); }} className="p-2.5 bg-theme-base/5 rounded-lg text-theme-base/20 hover:text-theme-base"><Edit2 className="w-3.5 h-3.5" /></button>
@@ -272,7 +286,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                         <p className="urdu-text text-brand-lime/50 text-base leading-none">{cat.nameUrdu}</p>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-white/20 text-[10px] font-black uppercase">{cat.series.length} Series</span>
+                        <span className="text-white/20 text-[10px] font-black uppercase">{(cat?.series || []).length} Series</span>
                         <div className="flex gap-2">
                           <button onClick={() => { setSelectedCategoryId(cat.id); setViewMode('edit-category'); }} className="p-2 bg-white/5 rounded-lg"><Edit2 className="w-4 h-4 text-white/40" /></button>
                           <button onClick={(e) => handleRemoveCategory(e, cat.id)} className="p-2 bg-red-500/5 rounded-lg"><Trash2 className="w-4 h-4 text-red-500/50" /></button>
@@ -328,7 +342,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                             <button onClick={() => addSeriesToGroup(cat.id)} className="text-brand-lime text-[9px] font-black uppercase hover:underline">+ Add Item</button>
                           </div>
                           <div className="space-y-3">
-                            {cat.series.map(s => (
+                            {(cat?.series || []).map(s => (
                               <div key={s.id} className="flex items-center justify-between p-4 bg-neutral-900/30 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
                                 <div className="flex items-center gap-3">
                                   <img src={s.image} className="w-10 h-10 rounded-lg object-cover bg-neutral-800" />

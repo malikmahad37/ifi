@@ -13,35 +13,68 @@ import { Category, ContactInfo, Inquiry } from './types';
 import { INITIAL_CATEGORIES, INITIAL_CONTACT } from './constants';
 
 import { ThemeProvider } from './context/ThemeContext';
+import { subscribeToCategories, subscribeToInquiries, saveInquiry, deleteInquiry, syncCategories } from './lib/firebase';
 
 const App: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>(() => {
-    const saved = localStorage.getItem('ifi_categories_v4');
-    return saved ? JSON.parse(saved) : INITIAL_CATEGORIES;
-  });
+  // --- Firebase Integration ---
 
+  // Categories State
+  const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
+
+  // Real-time subscription for Categories
+  useEffect(() => {
+    const unsubscribe = subscribeToCategories((data) => {
+      if (data.length > 0) {
+        setCategories(data);
+      } else {
+        // Fallback or empty state. 
+        // If DB is empty, we might want to keep INITIAL_CATEGORIES or show nothing.
+        // For now, if DB is empty, we show empty list (unless we want to auto-migrate INITIAL).
+        // Let's rely on Admin "Migrate" button to populate DB first.
+        setCategories([]);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Contact State (Keep persistent local for now, or TODO: migrate to Firebase)
   const [contact, setContact] = useState<ContactInfo>(() => {
     const saved = localStorage.getItem('ifi_contact_v4');
     return saved ? JSON.parse(saved) : INITIAL_CONTACT;
   });
 
-  const [inquiries, setInquiries] = useState<Inquiry[]>(() => {
-    const saved = localStorage.getItem('ifi_inquiries');
-    return saved ? JSON.parse(saved) : [];
-  });
+  // Inquiries State
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
 
+  // Real-time subscription for Inquiries
+  useEffect(() => {
+    const unsubscribe = subscribeToInquiries((data) => {
+      setInquiries(data);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Admin Auth (Keep local)
   const [isAdmin, setIsAdmin] = useState<boolean>(() => {
     return localStorage.getItem('ifi_admin_auth') === 'true';
   });
 
+  // Sync Contact to LocalStorage (Legacy)
   useEffect(() => {
-    localStorage.setItem('ifi_categories_v4', JSON.stringify(categories));
     localStorage.setItem('ifi_contact_v4', JSON.stringify(contact));
-    localStorage.setItem('ifi_inquiries', JSON.stringify(inquiries));
-  }, [categories, contact, inquiries]);
+  }, [contact]);
 
-  const handleUpdateCategories = (newCategories: Category[]) => {
-    setCategories(newCategories);
+  // Handlers
+  const handleUpdateCategories = async (newCategories: Category[]) => {
+    try {
+      // Current 'categories' state is the "old" state from DB
+      // 'newCategories' is the desired state from Admin
+      await syncCategories(categories, newCategories);
+      // No need to setCategories here, the subscription will update it
+    } catch (error) {
+      console.error("FAILED TO SYNC:", error);
+      alert("Error saving data: " + (error as any).message);
+    }
   };
 
   const handleUpdateContact = (newContact: ContactInfo) => {
@@ -49,11 +82,11 @@ const App: React.FC = () => {
   };
 
   const handleAddInquiry = (inquiry: Inquiry) => {
-    setInquiries(prev => [inquiry, ...prev]);
+    saveInquiry(inquiry);
   };
 
   const handleDeleteInquiry = (id: string) => {
-    setInquiries(prev => prev.filter(q => q.id !== id));
+    deleteInquiry(id);
   };
 
   const handleLogin = () => {
