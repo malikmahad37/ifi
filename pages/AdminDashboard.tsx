@@ -149,17 +149,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
             <p className="text-[9px] md:text-[10px] font-black tracking-[0.5em] uppercase opacity-60">Control Panel</p>
           </div>
           <h1 className="text-4xl md:text-6xl font-black text-theme-base tracking-tighter uppercase leading-none">COMMAND</h1>
-          <button
-            onClick={() => {
-              if (confirm("Upload local data to Cloud? This will overwrite Cloud data.")) {
-                migrateCategories(INITIAL_CATEGORIES);
-                alert("Migration started. Data will appear shortly.");
-              }
-            }}
-            className="mt-2 text-[10px] bg-blue-500/20 text-blue-400 px-3 py-1 rounded border border-blue-500/30 hover:bg-blue-500/30"
-          >
-            TEST: MIGRATE DEFAULT DATA TO CLOUD
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+            <span className="text-[10px] text-brand-lime uppercase tracking-widest opacity-60">Connected to Cloud</span>
+          </div>
         </div>
 
         <div className="flex w-full md:w-auto bg-theme-base/5 p-1 rounded-2xl border border-theme-base/5 overflow-x-auto no-scrollbar">
