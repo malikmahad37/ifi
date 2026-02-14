@@ -327,6 +327,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                             className="w-full bg-input-bg border border-theme-base/5 rounded-lg p-3 text-[9px] text-theme-base/30 font-mono file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-lime file:text-brand-dark hover:file:bg-brand-lime/80"
                           />
                         </div>
+                        <div className="space-y-3">
+                          <label className="text-[9px] font-black text-theme-base/30 uppercase tracking-widest">Description (EN/UR)</label>
+                          <textarea value={cat.description} onChange={e => updateCategory(cat.id, 'description', e.target.value)} className="w-full h-24 bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-theme-base text-xs font-bold resize-none focus:border-brand-lime/50 transition-colors" placeholder="Category description..." />
+                          <textarea dir="rtl" value={cat.descriptionUrdu} onChange={e => updateCategory(cat.id, 'descriptionUrdu', e.target.value)} className="w-full h-24 bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-brand-text urdu-text text-lg resize-none focus:border-brand-lime/50 transition-colors" placeholder="زمرہ کی تفصیل..." />
+                        </div>
                       </div>
                       <div className="space-y-6">
                         <div className="space-y-2">
