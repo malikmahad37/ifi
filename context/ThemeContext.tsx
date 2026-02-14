@@ -12,16 +12,16 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [theme, setTheme] = useState<Theme>(() => {
         const saved = localStorage.getItem('ifi_theme');
-        return (saved as Theme) || 'dark';
+        return (saved as Theme) || 'light';
     });
 
     useEffect(() => {
         localStorage.setItem('ifi_theme', theme);
         const root = document.documentElement;
-        if (theme === 'light') {
-            root.classList.add('light-theme');
+        if (theme === 'dark') {
+            root.classList.add('dark-theme');
         } else {
-            root.classList.remove('light-theme');
+            root.classList.remove('dark-theme');
         }
     }, [theme]);
 

@@ -51,7 +51,24 @@
     </script>
     <style>
         :root {
-            /* Dark Theme (Default) */
+            /* Light Theme (Default) */
+            --color-bg-base: 250 250 250;
+            /* #fafafa - Zinc 50 */
+            --color-bg-surface: 0 0 0;
+            /* Black with opacity for glass */
+            --color-text-base: 24 24 27;
+            /* #18181b - Zinc 900 */
+            --color-text-muted: 0 0 0;
+            --color-brand-lime: 120 160 0;
+            /* Darker Lime for Light Mode visibility */
+            --glass-border: 0 0 0;
+            --glass-bg: 0 0 0;
+            --color-input-bg: 240 240 240;
+            /* Light Grey for Inputs */
+        }
+
+        :root.dark-theme {
+            /* Dark Theme */
             --color-bg-base: 10 10 10;
             /* #0a0a0a */
             --color-bg-surface: 255 255 255;
@@ -64,23 +81,6 @@
             --glass-bg: 255 255 255;
             --color-input-bg: 30 30 30;
             /* Dark Grey for Inputs */
-        }
-
-        :root.light-theme {
-            /* Light Theme */
-            --color-bg-base: 250 250 250;
-            /* #fafafa - Zinc 50 */
-            --color-bg-surface: 0 0 0;
-            /* Black with opacity for glass */
-            --color-text-base: 24 24 27;
-            /* #18181b - Zinc 900 */
-            --color-text-muted: 0 0 0;
-            --color-brand-lime: 210 232 45;
-            /* #D2E82D - Matching Brand Lime */
-            --glass-border: 0 0 0;
-            --glass-bg: 0 0 0;
-            --color-input-bg: 240 240 240;
-            /* Light Grey for Inputs */
         }
 
         body {
@@ -121,14 +121,14 @@
         }
 
         /* Custom Admin Card Background */
-        .card-parrot-bg {
+        :root.dark-theme .card-parrot-bg {
             background-color: rgba(23, 23, 23, 0.5);
-            /* Neutral 900 with opacity */
+            /* Neutral 900 */
         }
 
-        :root.light-theme .card-parrot-bg {
+        /* Default (Light) */
+        .card-parrot-bg {
             background-color: rgb(210, 232, 45);
-            /* Brand Lime Solid */
         }
     </style>
     <script type="importmap">
