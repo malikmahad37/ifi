@@ -237,7 +237,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                   <thead>
                     <tr className="border-b border-theme-base/5 bg-theme-base/[0.01]">
                       <th className="px-8 py-5 text-[9px] font-black uppercase tracking-widest text-theme-base/30">PRODUCT</th>
-                      <th className="px-8 py-5 text-[9px] font-black uppercase tracking-widest text-theme-base/30">CATEGORY</th>
                       <th className="px-8 py-5 text-[9px] font-black uppercase tracking-widest text-theme-base/30">ITEMS</th>
                       <th className="px-8 py-5 text-[9px] font-black uppercase tracking-widest text-theme-base/30 text-right">ACTIONS</th>
                     </tr>
@@ -254,8 +253,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                             </div>
                           </div>
                         </td>
-                        <td className="px-8 py-4 text-theme-base/40 text-[10px] font-black uppercase">{cat?.id}</td>
-                        <td className="px-8 py-4 text-theme-base/20 text-xs font-black">{(cat?.series || []).length} series</td>
+                        <td className="px-8 py-4 text-theme-base/20 text-xs font-black">{(cat?.series || []).length} items</td>
                         <td className="px-8 py-4 text-right">
                           <div className="flex justify-end gap-2">
                             <button onClick={() => { setSelectedCategoryId(cat.id); setViewMode('edit-category'); }} className="p-2.5 bg-theme-base/5 rounded-lg text-theme-base/20 hover:text-theme-base"><Edit2 className="w-3.5 h-3.5" /></button>
