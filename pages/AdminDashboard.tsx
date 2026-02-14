@@ -180,8 +180,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
         <section className="space-y-6 animate-fade-in">
           {inquiries.length === 0 ? (
             <div className="glass-panel p-20 rounded-[2.5rem] text-center">
-              <Inbox className="w-10 h-10 text-white/5 mx-auto mb-4" />
-              <p className="text-white/20 text-xs font-black uppercase tracking-widest">No messages</p>
+              <Inbox className="w-10 h-10 text-theme-base/5 mx-auto mb-4" />
+              <p className="text-theme-base/20 text-xs font-black uppercase tracking-widest">No messages</p>
             </div>
           ) : (
             inquiries.map((iq) => (
@@ -214,13 +214,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
             <div className="space-y-6">
               <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div className="relative w-full md:w-[500px]">
-                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-base/20" />
                   <input
                     type="text"
                     placeholder="Search inventory..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-neutral-900/50 border border-white/10 rounded-2xl pl-14 pr-6 py-4 text-sm text-white focus:outline-none focus:border-brand-lime/30 placeholder:text-white/30"
+                    className="w-full bg-input-bg border border-theme-base/10 rounded-2xl pl-14 pr-6 py-4 text-sm text-theme-base focus:outline-none focus:border-brand-lime/30 placeholder:text-theme-base/30"
                   />
                 </div>
                 <button
@@ -275,13 +275,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                     <img src={cat.image} className="w-16 h-16 rounded-xl object-cover" />
                     <div className="flex-grow space-y-2">
                       <div>
-                        <p className="text-white font-black text-sm uppercase">{cat.name}</p>
-                        <p className="urdu-text text-brand-lime/50 text-base leading-none">{cat.nameUrdu}</p>
+                        <p className="text-theme-base font-black text-sm uppercase">{cat.name}</p>
+                        <p className="urdu-text text-brand-text/50 text-base leading-none">{cat.nameUrdu}</p>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-white/20 text-[10px] font-black uppercase">{(cat?.series || []).length} Series</span>
+                        <span className="text-theme-base/20 text-[10px] font-black uppercase">{(cat?.series || []).length} Series</span>
                         <div className="flex gap-2">
-                          <button onClick={() => { setSelectedCategoryId(cat.id); setViewMode('edit-category'); }} className="p-2 bg-white/5 rounded-lg"><Edit2 className="w-4 h-4 text-white/40" /></button>
+                          <button onClick={() => { setSelectedCategoryId(cat.id); setViewMode('edit-category'); }} className="p-2 bg-theme-base/5 rounded-lg"><Edit2 className="w-4 h-4 text-theme-base/40" /></button>
                           <button onClick={(e) => handleRemoveCategory(e, cat.id)} className="p-2 bg-red-500/5 rounded-lg"><Trash2 className="w-4 h-4 text-red-500/50" /></button>
                         </div>
                       </div>
@@ -311,41 +311,41 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                     <div key={cat.id} className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                       <div className="space-y-6">
                         <div className="space-y-3">
-                          <label className="text-[9px] font-black text-white/30 uppercase tracking-widest">Name (EN/UR)</label>
-                          <input value={cat.name} onChange={e => updateCategory(cat.id, 'name', e.target.value)} className="w-full bg-neutral-900/50 border border-white/10 rounded-xl px-5 py-4 text-white font-black focus:border-brand-lime/50 transition-colors" />
-                          <input dir="rtl" value={cat.nameUrdu} onChange={e => updateCategory(cat.id, 'nameUrdu', e.target.value)} className="w-full bg-neutral-900/50 border border-white/10 rounded-xl px-5 py-4 text-brand-lime urdu-text text-2xl focus:border-brand-lime/50 transition-colors" />
+                          <label className="text-[9px] font-black text-theme-base/30 uppercase tracking-widest">Name (EN/UR)</label>
+                          <input value={cat.name} onChange={e => updateCategory(cat.id, 'name', e.target.value)} className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-theme-base font-black focus:border-brand-lime/50 transition-colors" />
+                          <input dir="rtl" value={cat.nameUrdu} onChange={e => updateCategory(cat.id, 'nameUrdu', e.target.value)} className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-brand-text urdu-text text-2xl focus:border-brand-lime/50 transition-colors" />
                         </div>
                         <div className="space-y-3">
-                          <label className="text-[9px] font-black text-white/30 uppercase tracking-widest">Cover Image</label>
-                          <div className="aspect-video rounded-2xl overflow-hidden border border-white/10 mb-2">
+                          <label className="text-[9px] font-black text-theme-base/30 uppercase tracking-widest">Cover Image</label>
+                          <div className="aspect-video rounded-2xl overflow-hidden border border-theme-base/10 mb-2">
                             <img src={cat.image} className="w-full h-full object-cover" />
                           </div>
                           <input
                             type="file"
                             accept="image/*"
                             onChange={(e) => handleImageUpload(e, (base64) => updateCategory(cat.id, 'image', base64))}
-                            className="w-full bg-neutral-900/50 border border-white/5 rounded-lg p-3 text-[9px] text-white/30 font-mono file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-lime file:text-brand-dark hover:file:bg-brand-lime/80"
+                            className="w-full bg-input-bg border border-theme-base/5 rounded-lg p-3 text-[9px] text-theme-base/30 font-mono file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-lime file:text-brand-dark hover:file:bg-brand-lime/80"
                           />
                         </div>
                       </div>
                       <div className="space-y-6">
                         <div className="space-y-2">
                           <div className="flex justify-between items-center mb-2">
-                            <label className="text-[9px] font-black text-white/30 uppercase tracking-widest">Series List</label>
-                            <button onClick={() => addSeriesToGroup(cat.id)} className="text-brand-lime text-[9px] font-black uppercase hover:underline">+ Add Item</button>
+                            <label className="text-[9px] font-black text-theme-base/30 uppercase tracking-widest">Series List</label>
+                            <button onClick={() => addSeriesToGroup(cat.id)} className="text-brand-text text-[9px] font-black uppercase hover:underline">+ Add Item</button>
                           </div>
                           <div className="space-y-3">
                             {(cat?.series || []).map(s => (
-                              <div key={s.id} className="flex items-center justify-between p-4 bg-neutral-900/30 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+                              <div key={s.id} className="flex items-center justify-between p-4 bg-input-bg/60 rounded-xl border border-theme-base/5 hover:border-theme-base/10 transition-colors">
                                 <div className="flex items-center gap-3">
                                   <img src={s.image} className="w-10 h-10 rounded-lg object-cover bg-neutral-800" />
                                   <div>
-                                    <p className="text-white font-bold text-xs">{s.name}</p>
-                                    <p className="urdu-text text-brand-lime/40 text-xs leading-none">{s.nameUrdu}</p>
+                                    <p className="text-theme-base font-bold text-xs">{s.name}</p>
+                                    <p className="urdu-text text-brand-text/40 text-xs leading-none">{s.nameUrdu}</p>
                                   </div>
                                 </div>
                                 <div className="flex gap-1.5">
-                                  <button onClick={() => { setSelectedProductId(s.id); setViewMode('edit-product'); }} className="p-2 text-white/20 hover:text-white"><Edit2 className="w-3.5 h-3.5" /></button>
+                                  <button onClick={() => { setSelectedProductId(s.id); setViewMode('edit-product'); }} className="p-2 text-theme-base/20 hover:text-theme-base"><Edit2 className="w-3.5 h-3.5" /></button>
                                   <button onClick={(e) => handleRemoveSeries(e, cat.id, s.id)} className="p-2 text-red-500/20 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
                                 </div>
                               </div>
@@ -364,32 +364,32 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                     <div key={s.id} className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                       <div className="space-y-6">
                         <div className="space-y-3">
-                          <label className="text-[9px] font-black text-white/30 uppercase tracking-widest">Series Detail</label>
-                          <input value={s.name} onChange={e => updateSeries(selectedCategoryId, s.id, 'name', e.target.value)} className="w-full bg-neutral-900/50 border border-white/10 rounded-xl px-5 py-4 text-white font-black" />
-                          <input dir="rtl" value={s.nameUrdu} onChange={e => updateSeries(selectedCategoryId, s.id, 'nameUrdu', e.target.value)} className="w-full bg-neutral-900/50 border border-white/10 rounded-xl px-5 py-4 text-brand-lime urdu-text text-2xl" />
+                          <label className="text-[9px] font-black text-theme-base/30 uppercase tracking-widest">Series Detail</label>
+                          <input value={s.name} onChange={e => updateSeries(selectedCategoryId, s.id, 'name', e.target.value)} className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-theme-base font-black" />
+                          <input dir="rtl" value={s.nameUrdu} onChange={e => updateSeries(selectedCategoryId, s.id, 'nameUrdu', e.target.value)} className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-brand-text urdu-text text-2xl" />
                         </div>
                         <div className="space-y-3">
-                          <label className="text-[9px] font-black text-white/30 uppercase tracking-widest">Product Photo</label>
-                          <div className="aspect-square w-full max-w-[250px] mx-auto rounded-3xl overflow-hidden border border-white/10 mb-2">
+                          <label className="text-[9px] font-black text-theme-base/30 uppercase tracking-widest">Product Photo</label>
+                          <div className="aspect-square w-full max-w-[250px] mx-auto rounded-3xl overflow-hidden border border-theme-base/10 mb-2">
                             <img src={s.image} className="w-full h-full object-cover" />
                           </div>
                           <input
                             type="file"
                             accept="image/*"
                             onChange={(e) => handleImageUpload(e, (base64) => updateSeries(selectedCategoryId, s.id, 'image', base64))}
-                            className="w-full bg-neutral-900/50 border border-white/5 rounded-lg p-3 text-[9px] text-white/30 font-mono file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-lime file:text-brand-dark hover:file:bg-brand-lime/80"
+                            className="w-full bg-input-bg border border-theme-base/5 rounded-lg p-3 text-[9px] text-theme-base/30 font-mono file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-lime file:text-brand-dark hover:file:bg-brand-lime/80"
                           />
                         </div>
                       </div>
                       <div className="space-y-6">
                         <div className="space-y-2">
-                          <label className="text-[9px] font-black text-white/30 uppercase tracking-widest">Sizes (Comma separated)</label>
-                          <input value={s.sizes.join(', ')} onChange={e => updateSeries(selectedCategoryId, s.id, 'sizes', e.target.value.split(',').map(v => v.trim()))} className="w-full bg-neutral-900/50 border border-white/10 rounded-xl p-4 text-white text-xs font-mono" />
+                          <label className="text-[9px] font-black text-theme-base/30 uppercase tracking-widest">Sizes (Comma separated)</label>
+                          <input value={s.sizes.join(', ')} onChange={e => updateSeries(selectedCategoryId, s.id, 'sizes', e.target.value.split(',').map(v => v.trim()))} className="w-full bg-input-bg border border-theme-base/10 rounded-xl p-4 text-theme-base text-xs font-mono" />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[9px] font-black text-white/30 uppercase tracking-widest">Description</label>
-                          <textarea value={s.description} onChange={e => updateSeries(selectedCategoryId, s.id, 'description', e.target.value)} className="w-full h-24 bg-neutral-900/50 border border-white/10 rounded-xl p-4 text-xs text-white resize-none" />
-                          <textarea dir="rtl" value={s.descriptionUrdu} onChange={e => updateSeries(selectedCategoryId, s.id, 'descriptionUrdu', e.target.value)} className="w-full h-24 bg-neutral-900/50 border border-white/10 rounded-xl p-4 urdu-text text-base text-brand-lime/80 resize-none" />
+                          <label className="text-[9px] font-black text-theme-base/30 uppercase tracking-widest">Description</label>
+                          <textarea value={s.description} onChange={e => updateSeries(selectedCategoryId, s.id, 'description', e.target.value)} className="w-full h-24 bg-input-bg border border-theme-base/10 rounded-xl p-4 text-xs text-theme-base resize-none" />
+                          <textarea dir="rtl" value={s.descriptionUrdu} onChange={e => updateSeries(selectedCategoryId, s.id, 'descriptionUrdu', e.target.value)} className="w-full h-24 bg-input-bg border border-theme-base/10 rounded-xl p-4 urdu-text text-base text-brand-text/80 resize-none" />
                         </div>
                         <div className="pt-4">
                           <button onClick={(e) => handleRemoveSeries(e, selectedCategoryId, s.id)} className="w-full py-4 bg-red-500/5 hover:bg-red-500 hover:text-white border border-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all">
@@ -409,7 +409,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
       {activeTab === 'contact' && (
         <section className="space-y-10 animate-fade-in">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <h2 className="text-xl font-black text-white/40 uppercase tracking-widest">Company Information</h2>
+            <h2 className="text-xl font-black text-theme-base/40 uppercase tracking-widest">Company Information</h2>
             <button onClick={saveAll} className="bg-brand-lime text-black px-8 py-3.5 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-brand-lime/10">SAVE CHANGES</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
