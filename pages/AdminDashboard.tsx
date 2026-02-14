@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Plus, Trash2, Save, X, Phone, Mail, MapPin, Globe, Package, Info, Image as ImageIcon, Type, LayoutDashboard, Inbox, Calendar, MessageSquare, Search, Edit2, CheckCircle, Star, ArrowLeft, MessageCircle } from 'lucide-react';
+import { Plus, Trash2, Save, X, Phone, Mail, MapPin, Globe, Package, Info, Image as ImageIcon, Type, LayoutDashboard, Inbox, Calendar, MessageSquare, Search, Edit2, CheckCircle, Star, ArrowLeft, MessageCircle, FileText } from 'lucide-react';
 import { Category, ProductSeries, ContactInfo, Inquiry } from '../types';
 import { migrateCategories } from '../lib/firebase';
 import { INITIAL_CATEGORIES } from '../constants';
@@ -15,7 +15,7 @@ interface AdminDashboardProps {
 }
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, contact, onUpdateContact, inquiries, onDeleteInquiry }) => {
-  const [activeTab, setActiveTab] = useState<'catalog' | 'inbox' | 'contact'>('catalog');
+  const [activeTab, setActiveTab] = useState<'catalog' | 'inbox' | 'contact' | 'billing'>('catalog');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Handle image upload and conversion to base64
@@ -139,6 +139,51 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
     setViewMode('edit-product');
   };
 
+  // --- INVOICE GENERATOR STATE ---
+  interface InvoiceItem {
+    id: string;
+    description: string;
+    weight: string;
+    rate: string; // string key input handling
+    amount: number;
+  }
+
+  const [invoiceCustomer, setInvoiceCustomer] = useState({ name: '', phone: '', address: '' });
+  const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>([
+    { id: Date.now().toString(), description: '', weight: '', rate: '', amount: 0 }
+  ]);
+
+  const updateInvoiceItem = (id: string, field: keyof InvoiceItem, value: string) => {
+    setInvoiceItems(prev => prev.map(item => {
+      if (item.id !== id) return item;
+      const updated = { ...item, [field]: value };
+      if (field === 'weight' || field === 'rate') {
+        const w = parseFloat(updated.weight) || 0;
+        const r = parseFloat(updated.rate) || 0;
+        updated.amount = w * r;
+      }
+      return updated;
+    }));
+  };
+
+  const addInvoiceItem = () => {
+    setInvoiceItems(prev => [...prev, { id: Date.now().toString(), description: '', weight: '', rate: '', amount: 0 }]);
+  };
+
+  const removeInvoiceItem = (id: string) => {
+    if (invoiceItems.length > 1) {
+      setInvoiceItems(prev => prev.filter(i => i.id !== id));
+    }
+  };
+
+  const invoiceTotal = useMemo(() => {
+    return invoiceItems.reduce((sum, item) => sum + item.amount, 0);
+  }, [invoiceItems]);
+
+  const handlePrintInvoice = () => {
+    window.print();
+  };
+
   return (
     <div className="min-h-screen pt-20 md:pt-24 pb-20 px-4 max-w-7xl mx-auto bg-bg-base transition-colors duration-300">
       {/* Dashboard Header */}
@@ -158,8 +203,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
         <div className="flex w-full md:w-auto bg-theme-base/5 p-1 rounded-2xl border border-theme-base/5 overflow-x-auto no-scrollbar">
           {[
             { id: 'catalog', label: 'CATALOG', icon: Package },
+            { id: 'catalog', label: 'CATALOG', icon: Package },
             { id: 'inbox', label: `INBOX (${inquiries.length})`, icon: Inbox },
-            { id: 'contact', label: 'BUSINESS', icon: Info }
+            { id: 'contact', label: 'BUSINESS', icon: Info },
+            { id: 'billing', label: 'BILLING', icon: FileText }
           ].map(tab => (
             <button
               key={tab.id}
@@ -407,6 +454,167 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
             </div>
           )}
         </div>
+      )}
+
+      {activeTab === 'billing' && (
+        <section className="animate-fade-in relative">
+          {/* Editor View */}
+          <div className="space-y-8 print:hidden">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <h2 className="text-xl font-black text-theme-base/40 uppercase tracking-widest">Invoice Generator</h2>
+              <button onClick={handlePrintInvoice} className="bg-brand-lime text-black px-8 py-3.5 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-brand-lime/10 flex items-center gap-2">
+                <FileText className="w-4 h-4" /> GENERATE & PRINT
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Customer Info */}
+              <div className="lg:col-span-1 space-y-6">
+                <div className="glass-panel p-6 rounded-3xl space-y-4 border border-theme-base/10">
+                  <h3 className="text-[10px] font-black text-theme-base uppercase tracking-widest border-b border-theme-base/5 pb-2">Customer Details</h3>
+                  <div className="space-y-3">
+                    <input
+                      placeholder="Customer Name"
+                      value={invoiceCustomer.name}
+                      onChange={e => setInvoiceCustomer({ ...invoiceCustomer, name: e.target.value })}
+                      className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors"
+                    />
+                    <input
+                      placeholder="Phone Number"
+                      value={invoiceCustomer.phone}
+                      onChange={e => setInvoiceCustomer({ ...invoiceCustomer, phone: e.target.value })}
+                      className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors"
+                    />
+                    <textarea
+                      placeholder="Address"
+                      value={invoiceCustomer.address}
+                      onChange={e => setInvoiceCustomer({ ...invoiceCustomer, address: e.target.value })}
+                      className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors resize-none h-20"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Items List */}
+              <div className="lg:col-span-2 space-y-6">
+                <div className="glass-panel p-6 rounded-3xl space-y-4 border border-theme-base/10">
+                  <div className="flex justify-between items-center border-b border-theme-base/5 pb-2">
+                    <h3 className="text-[10px] font-black text-theme-base uppercase tracking-widest">Order Items</h3>
+                    <div className="text-[10px] font-black text-brand-text uppercase tracking-widest">
+                      Total: <span className="text-theme-base text-sm ml-2">Rs. {invoiceTotal.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    {invoiceItems.map((item, idx) => (
+                      <div key={item.id} className="grid grid-cols-12 gap-2 items-center bg-input-bg/30 p-2 rounded-xl">
+                        <div className="col-span-1 text-center text-[9px] text-theme-base/30 font-bold">{idx + 1}</div>
+                        <div className="col-span-5">
+                          <input
+                            placeholder="Product Description"
+                            value={item.description}
+                            onChange={e => updateInvoiceItem(item.id, 'description', e.target.value)}
+                            className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors focus:ring-0"
+                          />
+                        </div>
+                        <div className="col-span-2">
+                          <input
+                            type="number"
+                            placeholder="Weight (kg)"
+                            value={item.weight}
+                            onChange={e => updateInvoiceItem(item.id, 'weight', e.target.value)}
+                            className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-mono focus:border-brand-lime/50 transition-colors focus:ring-0 text-center"
+                          />
+                        </div>
+                        <div className="col-span-2">
+                          <input
+                            type="number"
+                            placeholder="Rate"
+                            value={item.rate}
+                            onChange={e => updateInvoiceItem(item.id, 'rate', e.target.value)}
+                            className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-mono focus:border-brand-lime/50 transition-colors focus:ring-0 text-center"
+                          />
+                        </div>
+                        <div className="col-span-1 text-right text-[10px] font-mono text-theme-base/60">
+                          {item.amount.toLocaleString()}
+                        </div>
+                        <div className="col-span-1 text-center">
+                          <button onClick={() => removeInvoiceItem(item.id)} className="text-red-500/40 hover:text-red-500 transition-colors"><X className="w-3 h-3" /></button>
+                        </div>
+                      </div>
+                    ))}
+                    <button onClick={addInvoiceItem} className="w-full py-3 border-2 border-dashed border-theme-base/10 rounded-xl text-[10px] font-black uppercase text-theme-base/30 hover:text-brand-text hover:border-brand-lime/30 transition-all">
+                      + Add Line Item
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Printable Invoice (Hidden on Screen) */}
+          <div className="hidden print:block fixed inset-0 bg-white z-[9999] p-8 text-black">
+            <div className="max-w-[210mm] mx-auto h-full flex flex-col justify-between">
+              <div className="space-y-8">
+                {/* Header */}
+                <div className="flex justify-between items-start border-b-2 border-black pb-6">
+                  <div>
+                    <h1 className="text-3xl font-black uppercase tracking-tighter">INVOICE</h1>
+                    <p className="text-sm font-bold mt-1">iFi ITTEFAQ FASTENERS INDUSTRIES</p>
+                    <p className="text-xs text-gray-600 mt-1 max-w-[250px]">{contact.address}</p>
+                    <p className="text-xs text-gray-600 mt-1">Phone: {contact.phone}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-4xl font-black text-gray-200">#{Date.now().toString().slice(-6)}</div>
+                    <p className="text-xs font-bold mt-1">Date: {new Date().toLocaleDateString()}</p>
+                  </div>
+                </div>
+
+                {/* Customer */}
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <p className="text-[10px] font-bold uppercase text-gray-400 tracking-widest mb-1">Bill To:</p>
+                  <p className="font-bold text-lg">{invoiceCustomer.name || 'Walk-in Customer'}</p>
+                  {invoiceCustomer.phone && <p className="text-sm text-gray-600">{invoiceCustomer.phone}</p>}
+                  {invoiceCustomer.address && <p className="text-sm text-gray-600 mt-1">{invoiceCustomer.address}</p>}
+                </div>
+
+                {/* Table */}
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b-2 border-black">
+                      <th className="py-2 text-xs font-black uppercase">Description</th>
+                      <th className="py-2 text-xs font-black uppercase text-center">Weight / Qty</th>
+                      <th className="py-2 text-xs font-black uppercase text-center">Rate</th>
+                      <th className="py-2 text-xs font-black uppercase text-right">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {invoiceItems.map((item, idx) => (
+                      <tr key={idx}>
+                        <td className="py-3 text-sm font-medium">{item.description}</td>
+                        <td className="py-3 text-sm text-center font-mono">{item.weight}</td>
+                        <td className="py-3 text-sm text-center font-mono">{item.rate}</td>
+                        <td className="py-3 text-sm text-right font-mono font-bold">{item.amount.toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="border-t-2 border-black">
+                      <td colSpan={3} className="py-4 text-right text-sm font-black uppercase pr-8">Total Amount</td>
+                      <td className="py-4 text-right text-lg font-black font-mono">Rs. {invoiceTotal.toLocaleString()}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              {/* Footer */}
+              <div className="border-t border-gray-300 pt-8 text-center space-y-2">
+                <p className="text-xs font-bold uppercase">Thank you for your business!</p>
+                <p className="text-[10px] text-gray-500">Computer generated invoice. Signature not required.</p>
+              </div>
+            </div>
+          </div>
+        </section>
       )}
 
       {activeTab === 'contact' && (
