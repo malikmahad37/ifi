@@ -203,7 +203,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
         <div className="flex w-full md:w-auto bg-theme-base/5 p-1 rounded-2xl border border-theme-base/5 overflow-x-auto no-scrollbar">
           {[
             { id: 'catalog', label: 'CATALOG', icon: Package },
-            { id: 'catalog', label: 'CATALOG', icon: Package },
             { id: 'inbox', label: `INBOX (${inquiries.length})`, icon: Inbox },
             { id: 'contact', label: 'BUSINESS', icon: Info },
             { id: 'billing', label: 'BILLING', icon: FileText }
