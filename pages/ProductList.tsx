@@ -33,7 +33,7 @@ const ProductList: React.FC<ProductListProps> = ({ categories }) => {
                   alt={category.name}
                   className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 brightness-75"
                 />
-                <div className="absolute top-3 left-3 px-2 py-1 bg-black/60 rounded text-[9px] text-brand-lime font-black uppercase tracking-widest">
+                <div className="absolute top-3 left-3 px-2 py-1 bg-theme-base/90 rounded text-[9px] text-bg-base font-black uppercase tracking-widest">
                   0{idx + 1}
                 </div>
               </div>

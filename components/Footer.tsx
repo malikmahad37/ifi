@@ -41,18 +41,18 @@ const Footer: React.FC<FooterProps> = ({ contact }) => {
             <h4 className="text-theme-base text-[10px] font-black tracking-[0.4em] uppercase">Official Location</h4>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <MapPin className="w-4 h-4 text-brand-lime shrink-0 opacity-40" />
+                <MapPin className="w-4 h-4 text-brand-text shrink-0 opacity-60" />
                 <div className="space-y-1">
                   <p className="text-theme-base/40 text-[10px] font-bold leading-relaxed">{contact.address}</p>
                 </div>
               </li>
               <li className="flex items-center gap-3 text-theme-base/40 text-[10px] font-bold tracking-widest">
-                <Phone className="w-4 h-4 text-brand-lime shrink-0 opacity-40" />
+                <Phone className="w-4 h-4 text-brand-text shrink-0 opacity-60" />
                 {contact.phone}
               </li>
               {contact.email && (
                 <li className="flex items-center gap-3 text-theme-base/40 text-[10px] font-bold tracking-widest">
-                  <Mail className="w-4 h-4 text-brand-lime shrink-0 opacity-40" />
+                  <Mail className="w-4 h-4 text-brand-text shrink-0 opacity-60" />
                   {contact.email}
                 </li>
               )}

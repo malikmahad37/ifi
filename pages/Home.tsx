@@ -64,7 +64,7 @@ const Home: React.FC<HomeProps> = ({ categories, contact }) => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-transparent to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-4 md:p-8 w-full transform md:translate-y-1 group-hover:translate-y-0 transition-transform">
-                <h3 className="text-base md:text-2xl font-black text-white mb-0.5 uppercase tracking-tighter leading-tight drop-shadow-md">{category.name}</h3>
+                <h3 className="text-base md:text-2xl font-black text-theme-base mb-0.5 uppercase tracking-tighter leading-tight drop-shadow-md">{category.name}</h3>
                 <p className="urdu-text text-brand-lime text-base md:text-xl font-bold mb-3 md:mb-4">{category.nameUrdu}</p>
                 <div className="flex items-center gap-1.5 md:gap-2 text-brand-lime font-black text-[8px] md:text-[9px] tracking-[0.2em] uppercase opacity-70 group-hover:opacity-100 transition-opacity">
                   View <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />

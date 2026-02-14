@@ -33,7 +33,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAdmin, onLogout }) => {
               </div>
               <div className="border-l border-theme-base/10 pl-2.5">
                 <p className="text-[9px] uppercase tracking-[0.3em] text-theme-base font-black leading-none">Ittefaq Fasteners</p>
-                <p className="text-[9px] uppercase tracking-[0.3em] text-brand-lime font-black leading-none mt-1">Industries</p>
+                <p className="text-[9px] uppercase tracking-[0.3em] text-brand-text font-black leading-none mt-1">Industries</p>
                 <p className="text-[7px] uppercase tracking-[0.4em] text-theme-base/40 font-bold leading-none mt-1">SINCE 1987</p>
               </div>
             </Link>

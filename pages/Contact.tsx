@@ -34,7 +34,7 @@ const Contact: React.FC<ContactProps> = ({ contact, onAddInquiry }) => {
     <div className="min-h-screen pt-24 pb-16 bg-bg-base transition-colors duration-300">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-16 space-y-3">
-          <p className="text-brand-lime text-[10px] font-black tracking-[0.5em] uppercase opacity-60">Connect With Us</p>
+          <p className="text-brand-text text-[10px] font-black tracking-[0.5em] uppercase opacity-60">Connect With Us</p>
           <h1 className="text-4xl md:text-5xl font-black text-theme-base tracking-tighter uppercase">GET IN TOUCH</h1>
           <p className="urdu-text text-theme-base/30 text-xl md:text-2xl font-bold">رابطہ کریں</p>
         </div>
@@ -44,7 +44,7 @@ const Contact: React.FC<ContactProps> = ({ contact, onAddInquiry }) => {
             <div className="glass-panel p-10 rounded-[2.5rem] space-y-12">
               <div className="space-y-10">
                 <div className="flex gap-5 items-start">
-                  <div className="w-14 h-14 rounded-2xl bg-brand-lime/10 flex items-center justify-center text-brand-lime shadow-lg border border-theme-base/10 shrink-0">
+                  <div className="w-14 h-14 rounded-2xl bg-brand-lime/10 flex items-center justify-center text-brand-text shadow-lg border border-theme-base/10 shrink-0">
                     <Phone className="w-7 h-7" />
                   </div>
                   <div className="space-y-1">
@@ -54,7 +54,7 @@ const Contact: React.FC<ContactProps> = ({ contact, onAddInquiry }) => {
                 </div>
 
                 <div className="flex gap-5 items-start">
-                  <div className="w-14 h-14 rounded-2xl bg-brand-lime/10 flex items-center justify-center text-brand-lime shadow-lg border border-theme-base/10 shrink-0">
+                  <div className="w-14 h-14 rounded-2xl bg-brand-lime/10 flex items-center justify-center text-brand-text shadow-lg border border-theme-base/10 shrink-0">
                     <MapPin className="w-7 h-7" />
                   </div>
                   <div className="space-y-1">
@@ -75,7 +75,7 @@ const Contact: React.FC<ContactProps> = ({ contact, onAddInquiry }) => {
               <div className="h-full flex flex-col items-center justify-center text-center space-y-4 animate-fade-in">
                 <CheckCircle className="w-20 h-20 text-brand-lime" />
                 <h2 className="text-2xl font-black text-theme-base uppercase tracking-tighter">Inquiry Sent!</h2>
-                <p className="urdu-text text-brand-lime text-xl">آپ کا پیغام وصول ہو گیا ہے۔ ہم جلد رابطہ کریں گے۔</p>
+                <p className="urdu-text text-brand-text text-xl">آپ کا پیغام وصول ہو گیا ہے۔ ہم جلد رابطہ کریں گے۔</p>
               </div>
             ) : (
               <form className="space-y-6 relative z-10" onSubmit={handleSubmit}>

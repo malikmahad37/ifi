@@ -19,7 +19,7 @@ const CategoryView: React.FC<CategoryViewProps> = ({ categories, contact }) => {
     window.scrollTo(0, 0);
   }, [id, categories]);
 
-  if (!category) return <div className="min-h-screen flex items-center justify-center text-white text-[10px] tracking-widest uppercase italic opacity-20">Accessing Catalog...</div>;
+  if (!category) return <div className="min-h-screen flex items-center justify-center text-theme-base text-[10px] tracking-widest uppercase italic opacity-20">Accessing Catalog...</div>;
 
   const handleWhatsApp = (seriesName: string) => {
     const text = `Hi iFi, I am looking for information on ${seriesName} from the ${category.name} category.`;
@@ -40,7 +40,7 @@ const CategoryView: React.FC<CategoryViewProps> = ({ categories, contact }) => {
           </Link>
           <div className="space-y-2">
             <p className="text-brand-lime text-[9px] md:text-[11px] font-black tracking-[0.5em] uppercase opacity-80">Industrial Category</p>
-            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase leading-none drop-shadow-xl">{category.name}</h1>
+            <h1 className="text-3xl md:text-5xl font-black text-theme-base tracking-tighter uppercase leading-none drop-shadow-xl">{category.name}</h1>
             <p className="urdu-text text-brand-lime/90 text-xl md:text-3xl font-bold leading-none mt-2">{category.nameUrdu}</p>
           </div>
         </div>
@@ -59,7 +59,7 @@ const CategoryView: React.FC<CategoryViewProps> = ({ categories, contact }) => {
                   <img src={series.image} alt={series.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
                   <div className="absolute bottom-3 left-3 right-3">
-                    <h3 className="text-white font-black text-sm md:text-base uppercase tracking-tight leading-tight line-clamp-2 drop-shadow-md">{series.name}</h3>
+                    <h3 className="text-theme-base font-black text-sm md:text-base uppercase tracking-tight leading-tight line-clamp-2 drop-shadow-md">{series.name}</h3>
                     <p className="urdu-text text-brand-lime text-xs md:text-sm font-bold mt-0.5">{series.nameUrdu}</p>
                   </div>
                 </div>

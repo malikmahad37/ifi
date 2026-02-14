@@ -34,45 +34,45 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       </div>
 
       <div className="relative z-10 w-full max-w-md space-y-8 animate-slide-up">
-        <Link to="/" className="inline-flex items-center gap-2 text-white/60 hover:text-brand-lime transition-colors text-[10px] font-bold uppercase tracking-widest mb-4">
+        <Link to="/" className="inline-flex items-center gap-2 text-theme-base/60 hover:text-brand-text transition-colors text-[10px] font-bold uppercase tracking-widest mb-4">
           <ChevronLeft className="w-4 h-4" /> Back to Home
         </Link>
 
-        <div className="glass-panel p-10 rounded-[3rem] space-y-8 border-white/10 shadow-2xl">
+        <div className="glass-panel p-10 rounded-[3rem] space-y-8 border-theme-base/10 shadow-2xl">
           <div className="text-center space-y-3">
             <div className="inline-flex w-20 h-20 rounded-[2rem] bg-brand-lime items-center justify-center text-black mb-2 shadow-xl shadow-brand-lime/20">
               <Lock className="w-10 h-10" />
             </div>
-            <h1 className="text-3xl font-black text-white tracking-tighter uppercase leading-none">ADMIN PORTAL</h1>
-            <p className="text-brand-lime uppercase tracking-[0.3em] text-[9px] font-bold">Secure Verification Required</p>
+            <h1 className="text-3xl font-black text-theme-base tracking-tighter uppercase leading-none">ADMIN PORTAL</h1>
+            <p className="text-brand-text uppercase tracking-[0.3em] text-[9px] font-bold">Secure Verification Required</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <label className="text-[10px] uppercase font-bold tracking-widest text-white/70 ml-1">Identity</label>
+              <label className="text-[10px] uppercase font-bold tracking-widest text-theme-base/70 ml-1">Identity</label>
               <div className="relative">
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-neutral-900/50 border border-white/10 rounded-2xl px-12 py-4 text-white placeholder:text-white/30 focus:outline-none focus:border-brand-lime transition-all text-sm autofill:bg-neutral-900 autofill:text-white"
+                  className="w-full bg-input-bg border border-theme-base/10 rounded-2xl px-12 py-4 text-theme-base placeholder:text-theme-base/30 focus:outline-none focus:border-brand-lime transition-all text-sm autofill:bg-input-bg autofill:text-theme-base"
                   placeholder="Enter Username"
                 />
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-base/50" />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] uppercase font-bold tracking-widest text-white/70 ml-1">Access Key</label>
+              <label className="text-[10px] uppercase font-bold tracking-widest text-theme-base/70 ml-1">Access Key</label>
               <div className="relative">
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-neutral-900/50 border border-white/10 rounded-2xl px-12 py-4 text-white placeholder:text-white/30 focus:outline-none focus:border-brand-lime transition-all text-sm autofill:bg-neutral-900 autofill:text-white"
+                  className="w-full bg-input-bg border border-theme-base/10 rounded-2xl px-12 py-4 text-theme-base placeholder:text-theme-base/30 focus:outline-none focus:border-brand-lime transition-all text-sm autofill:bg-input-bg autofill:text-theme-base"
                   placeholder="••••••••"
                 />
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-base/50" />
               </div>
             </div>
 
