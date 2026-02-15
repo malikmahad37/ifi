@@ -182,8 +182,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
   };
 
   const allProducts = useMemo(() => {
-    return categories.flatMap(c => c.series.map(s => ({
-      label: `${c.name} - ${s.name} (${s.sizes.join(', ')})`,
+    return (categories || []).flatMap(c => (c.series || []).map(s => ({
+      label: `${c.name} - ${s.name} (${(s.sizes || []).join(', ')})`,
       value: `${c.name} - ${s.name}`
     })));
   }, [categories]);
