@@ -149,6 +149,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
   }
 
   const [invoiceCustomer, setInvoiceCustomer] = useState({ name: '', phone: '', address: '' });
+  const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
+  const [invoiceDiscount, setInvoiceDiscount] = useState<number>(0);
+  const [invoiceTax, setInvoiceTax] = useState<number>(0);
+  const [invoiceNotes, setInvoiceNotes] = useState('');
+
   const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>([
     { id: Date.now().toString(), description: '', weight: '', rate: '', amount: 0 }
   ]);
@@ -176,9 +181,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
     }
   };
 
-  const invoiceTotal = useMemo(() => {
-    return invoiceItems.reduce((sum, item) => sum + item.amount, 0);
-  }, [invoiceItems]);
+  const allProducts = useMemo(() => {
+    return categories.flatMap(c => c.series.map(s => ({
+      label: `${c.name} - ${s.name} (${s.sizes.join(', ')})`,
+      value: `${c.name} - ${s.name}`
+    })));
+  }, [categories]);
+
+  const { subTotal, taxAmount, discountAmount, grandTotal } = useMemo(() => {
+    const sub = invoiceItems.reduce((sum, item) => sum + item.amount, 0);
+    const tax = (sub * invoiceTax) / 100;
+    const total = sub + tax - invoiceDiscount;
+    return { subTotal: sub, taxAmount: tax, discountAmount: invoiceDiscount, grandTotal: total };
+  }, [invoiceItems, invoiceTax, invoiceDiscount]);
 
   const handlePrintInvoice = () => {
     window.print();
@@ -461,9 +476,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
           <div className="space-y-8 print:hidden">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <h2 className="text-xl font-black text-theme-base/40 uppercase tracking-widest">Invoice Generator</h2>
-              <button onClick={handlePrintInvoice} className="bg-brand-lime text-black px-8 py-3.5 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-brand-lime/10 flex items-center gap-2">
-                <FileText className="w-4 h-4" /> GENERATE & PRINT
-              </button>
+              <div className="flex gap-4">
+                <input
+                  type="date"
+                  value={invoiceDate}
+                  onChange={e => setInvoiceDate(e.target.value)}
+                  className="bg-input-bg border border-theme-base/10 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors"
+                />
+                <button onClick={handlePrintInvoice} className="bg-brand-lime text-black px-8 py-3.5 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-brand-lime/10 flex items-center gap-2">
+                  <FileText className="w-4 h-4" /> GENERATE & PRINT
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -500,7 +523,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                   <div className="flex justify-between items-center border-b border-theme-base/5 pb-2">
                     <h3 className="text-[10px] font-black text-theme-base uppercase tracking-widest">Order Items</h3>
                     <div className="text-[10px] font-black text-brand-text uppercase tracking-widest">
-                      Total: <span className="text-theme-base text-sm ml-2">Rs. {invoiceTotal.toLocaleString()}</span>
+                      Total: <span className="text-theme-base text-sm ml-2">Rs. {grandTotal.toLocaleString()}</span>
                     </div>
                   </div>
 
@@ -510,11 +533,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                         <div className="col-span-1 text-center text-[9px] text-theme-base/30 font-bold">{idx + 1}</div>
                         <div className="col-span-5">
                           <input
+                            list="products-list"
                             placeholder="Product Description"
                             value={item.description}
                             onChange={e => updateInvoiceItem(item.id, 'description', e.target.value)}
                             className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors focus:ring-0"
                           />
+                          <datalist id="products-list">
+                            {allProducts.map((p, i) => <option key={i} value={p.value}>{p.label}</option>)}
+                          </datalist>
                         </div>
                         <div className="col-span-2">
                           <input
@@ -545,6 +572,46 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                     <button onClick={addInvoiceItem} className="w-full py-3 border-2 border-dashed border-theme-base/10 rounded-xl text-[10px] font-black uppercase text-theme-base/30 hover:text-brand-text hover:border-brand-lime/30 transition-all">
                       + Add Line Item
                     </button>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-theme-base/5">
+                      <div className="space-y-4">
+                        <label className="text-[9px] font-black text-theme-base uppercase tracking-widest">Terms & Notes</label>
+                        <textarea
+                          value={invoiceNotes}
+                          onChange={e => setInvoiceNotes(e.target.value)}
+                          className="w-full h-24 bg-input-bg border border-theme-base/10 rounded-xl p-4 text-xs text-theme-base resize-none"
+                          placeholder="Payment terms, delivery notes, etc."
+                        />
+                      </div>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[9px] font-black text-theme-base uppercase tracking-widest">Subtotal</label>
+                          <span className="text-sm font-mono text-theme-base">Rs. {subTotal.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center gap-4">
+                          <label className="text-[9px] font-black text-theme-base uppercase tracking-widest whitespace-nowrap">Discount (Amount)</label>
+                          <input
+                            type="number"
+                            value={invoiceDiscount}
+                            onChange={e => setInvoiceDiscount(parseFloat(e.target.value) || 0)}
+                            className="w-24 bg-input-bg border border-theme-base/10 rounded-lg px-2 py-1 text-right text-xs font-mono"
+                          />
+                        </div>
+                        <div className="flex justify-between items-center gap-4">
+                          <label className="text-[9px] font-black text-theme-base uppercase tracking-widest whitespace-nowrap">Tax (%)</label>
+                          <input
+                            type="number"
+                            value={invoiceTax}
+                            onChange={e => setInvoiceTax(parseFloat(e.target.value) || 0)}
+                            className="w-24 bg-input-bg border border-theme-base/10 rounded-lg px-2 py-1 text-right text-xs font-mono"
+                          />
+                        </div>
+                        <div className="flex justify-between items-center border-t border-theme-base/10 pt-4">
+                          <label className="text-xs font-black text-brand-text uppercase tracking-widest">Grand Total</label>
+                          <span className="text-lg font-black font-mono text-theme-base">Rs. {grandTotal.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -565,7 +632,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                   </div>
                   <div className="text-right">
                     <div className="text-4xl font-black text-gray-200">#{Date.now().toString().slice(-6)}</div>
-                    <p className="text-xs font-bold mt-1">Date: {new Date().toLocaleDateString()}</p>
+                    <p className="text-xs font-bold mt-1">Date: {new Date(invoiceDate).toLocaleDateString()}</p>
                   </div>
                 </div>
 
@@ -599,18 +666,41 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                   </tbody>
                   <tfoot>
                     <tr className="border-t-2 border-black">
-                      <td colSpan={3} className="py-4 text-right text-sm font-black uppercase pr-8">Total Amount</td>
-                      <td className="py-4 text-right text-lg font-black font-mono">Rs. {invoiceTotal.toLocaleString()}</td>
+                      <td colSpan={3} className="py-2 text-right text-xs font-bold uppercase pr-8 text-gray-500">Subtotal</td>
+                      <td className="py-2 text-right text-sm font-bold font-mono">Rs. {subTotal.toLocaleString()}</td>
+                    </tr>
+                    {invoiceDiscount > 0 && (
+                      <tr>
+                        <td colSpan={3} className="py-2 text-right text-xs font-bold uppercase pr-8 text-gray-500">Discount</td>
+                        <td className="py-2 text-right text-sm font-bold font-mono">- Rs. {invoiceDiscount.toLocaleString()}</td>
+                      </tr>
+                    )}
+                    {invoiceTax > 0 && (
+                      <tr>
+                        <td colSpan={3} className="py-2 text-right text-xs font-bold uppercase pr-8 text-gray-500">Tax ({invoiceTax}%)</td>
+                        <td className="py-2 text-right text-sm font-bold font-mono">+ Rs. {taxAmount.toLocaleString()}</td>
+                      </tr>
+                    )}
+                    <tr className="border-t border-black">
+                      <td colSpan={3} className="py-4 text-right text-sm font-black uppercase pr-8">Grand Total</td>
+                      <td className="py-4 text-right text-lg font-black font-mono">Rs. {grandTotal.toLocaleString()}</td>
                     </tr>
                   </tfoot>
                 </table>
               </div>
 
               {/* Footer */}
-              <div className="border-t border-gray-300 pt-8 text-center space-y-2">
-                <p className="text-xs font-bold uppercase">Thank you for your business!</p>
-                <p className="text-[10px] text-gray-500">Computer generated invoice. Signature not required.</p>
+              <div className="grid grid-cols-2 gap-10 text-left pt-4">
+                <div>
+                  <p className="text-[10px] font-bold uppercase text-gray-400 tracking-widest mb-2">Terms & Notes:</p>
+                  <p className="text-xs text-gray-600 whitespace-pre-wrap">{invoiceNotes}</p>
+                </div>
+                <div className="flex flex-col justify-end items-end">
+                  <div className="w-48 border-b-2 border-black mb-2"></div>
+                  <p className="text-[10px] font-bold uppercase">Authorized Signatory</p>
+                </div>
               </div>
+              <p className="text-[10px] text-center text-gray-500 pt-8">Computer generated invoice.</p>
             </div>
           </div>
         </section>
