@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { ContactInfo } from '../types';
@@ -12,10 +13,30 @@ interface FooterProps {
 
 const Footer: React.FC<FooterProps> = ({ contact }) => {
   return (
-    <footer className="bg-bg-base border-t border-theme-base/5 pt-16 pb-6 transition-colors duration-300">
+    <motion.footer
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8 }}
+      className="bg-bg-base border-t border-theme-base/5 pt-16 pb-6 transition-colors duration-300"
+    >
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-          <div className="space-y-4">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.2
+              }
+            }
+          }}
+        >
+          <motion.div className="space-y-4" variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }}>
             <div className="space-y-2">
               <Logo className="w-24 h-24" />
               <h3 className="text-[9px] font-black tracking-[0.3em] uppercase text-theme-base/60">
@@ -25,9 +46,9 @@ const Footer: React.FC<FooterProps> = ({ contact }) => {
             <p className="text-theme-base/20 text-[11px] leading-relaxed max-w-xs">
               Pioneering industrial fastener excellence since 1987. Quality that industry leaders trust.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="space-y-6">
+          <motion.div className="space-y-6" variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }}>
             <h4 className="text-theme-base text-[10px] font-black tracking-[0.4em] uppercase">Quick Access</h4>
             <ul className="space-y-2.5">
               <li><Link to="/" className="text-theme-base/30 hover:text-brand-lime transition-all text-[10px] font-bold uppercase tracking-widest">Home</Link></li>
@@ -35,9 +56,9 @@ const Footer: React.FC<FooterProps> = ({ contact }) => {
               <li><Link to="/contact" className="text-theme-base/30 hover:text-brand-lime transition-all text-[10px] font-bold uppercase tracking-widest">Contact Sales</Link></li>
               <li><Link to="/login" className="text-theme-base/30 hover:text-brand-lime transition-all text-[10px] font-bold uppercase tracking-widest">Admin Login</Link></li>
             </ul>
-          </div>
+          </motion.div>
 
-          <div className="space-y-6">
+          <motion.div className="space-y-6" variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }}>
             <h4 className="text-theme-base text-[10px] font-black tracking-[0.4em] uppercase">Official Location</h4>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
@@ -57,8 +78,8 @@ const Footer: React.FC<FooterProps> = ({ contact }) => {
                 </li>
               )}
             </ul>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         <div className="border-t border-theme-base/5 pt-6 text-center md:text-left">
           <p className="text-theme-base/10 text-[8px] uppercase font-black tracking-[0.4em]">
@@ -66,7 +87,7 @@ const Footer: React.FC<FooterProps> = ({ contact }) => {
           </p>
         </div>
       </div>
-    </footer>
+    </motion.footer>
   );
 };
 

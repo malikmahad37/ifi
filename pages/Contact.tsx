@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, MessageCircle, Clock, User, CheckCircle } from 'lucide-react';
 import { ContactInfo, Inquiry } from '../types';
 
@@ -7,6 +7,25 @@ interface ContactProps {
   contact: ContactInfo;
   onAddInquiry: (inquiry: Inquiry) => void;
 }
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.3
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, x: -30 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { type: "spring", stiffness: 50 }
+  }
+};
 
 const Contact: React.FC<ContactProps> = ({ contact, onAddInquiry }) => {
   const [formData, setFormData] = useState({ name: '', phone: '', message: '' });
@@ -31,52 +50,83 @@ const Contact: React.FC<ContactProps> = ({ contact, onAddInquiry }) => {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-16 bg-bg-base transition-colors duration-300">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="text-center mb-16 space-y-3">
+    <div className="min-h-screen pt-20 pb-16 transition-colors duration-300 overflow-hidden relative">
+      {/* Background Blob */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-lime/5 rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
+
+      <div className="max-w-6xl mx-auto px-4 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-10 space-y-3"
+        >
           <p className="text-brand-text text-[10px] font-black tracking-[0.5em] uppercase opacity-60">Connect With Us</p>
           <h1 className="text-4xl md:text-5xl font-black text-theme-base tracking-tighter uppercase">GET IN TOUCH</h1>
           <p className="urdu-text text-theme-base/30 text-xl md:text-2xl font-bold">رابطہ کریں</p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          <div className="space-y-6">
-            <div className="glass-panel p-10 rounded-[2.5rem] space-y-12">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-10"
+        >
+          <motion.div
+            variants={itemVariants}
+            className="space-y-6"
+          >
+            <div className="glass-panel p-10 rounded-[2.5rem] space-y-12 shadow-2xl shadow-brand-lime/5">
               <div className="space-y-10">
-                <div className="flex gap-5 items-start">
-                  <div className="w-14 h-14 rounded-2xl bg-brand-lime/10 flex items-center justify-center text-brand-text shadow-lg border border-theme-base/10 shrink-0">
+                <motion.div
+                  className="flex gap-5 items-start group"
+                  whileHover={{ x: 10 }}
+                >
+                  <motion.div
+                    whileHover={{ rotate: 10, scale: 1.1 }}
+                    className="w-14 h-14 rounded-2xl bg-brand-lime/10 flex items-center justify-center text-brand-text shadow-lg border border-theme-base/10 shrink-0"
+                  >
                     <Phone className="w-7 h-7" />
-                  </div>
+                  </motion.div>
                   <div className="space-y-1">
                     <p className="text-theme-base/20 text-[9px] uppercase font-black tracking-widest">Call Center</p>
-                    <p className="text-theme-base text-xl font-black tracking-tight">{contact.phone}</p>
+                    <p className="text-theme-base text-xl font-black tracking-tight group-hover:text-brand-lime transition-colors">{contact.phone}</p>
                   </div>
-                </div>
+                </motion.div>
 
-                <div className="flex gap-5 items-start">
-                  <div className="w-14 h-14 rounded-2xl bg-brand-lime/10 flex items-center justify-center text-brand-text shadow-lg border border-theme-base/10 shrink-0">
+                <motion.div
+                  className="flex gap-5 items-start group"
+                  whileHover={{ x: 10 }}
+                >
+                  <motion.div
+                    whileHover={{ rotate: 10, scale: 1.1 }}
+                    className="w-14 h-14 rounded-2xl bg-brand-lime/10 flex items-center justify-center text-brand-text shadow-lg border border-theme-base/10 shrink-0"
+                  >
                     <MapPin className="w-7 h-7" />
-                  </div>
+                  </motion.div>
                   <div className="space-y-1">
                     <p className="text-theme-base/20 text-[9px] uppercase font-black tracking-widest">Our Presence</p>
-                    <p className="text-theme-base text-lg font-bold leading-tight">{contact.address}</p>
+                    <p className="text-theme-base text-lg font-bold leading-tight group-hover:text-brand-lime transition-colors">{contact.address}</p>
                   </div>
-                </div>
-
-
+                </motion.div>
               </div>
-
-
             </div>
-          </div>
+          </motion.div>
 
-          <div className="glass-panel p-10 rounded-[2.5rem] relative overflow-hidden">
+          <motion.div
+            variants={{ hidden: { opacity: 0, x: 30 }, visible: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 50 } } }}
+            className="glass-panel p-10 rounded-[2.5rem] relative overflow-hidden shadow-2xl"
+          >
             {isSent ? (
-              <div className="h-full flex flex-col items-center justify-center text-center space-y-4 animate-fade-in">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="h-full flex flex-col items-center justify-center text-center space-y-4"
+              >
                 <CheckCircle className="w-20 h-20 text-brand-lime" />
                 <h2 className="text-2xl font-black text-theme-base uppercase tracking-tighter">Inquiry Sent!</h2>
                 <p className="urdu-text text-brand-text text-xl">آپ کا پیغام وصول ہو گیا ہے۔ ہم جلد رابطہ کریں گے۔</p>
-              </div>
+              </motion.div>
             ) : (
               <form className="space-y-6 relative z-10" onSubmit={handleSubmit}>
                 <div className="space-y-2">
@@ -118,14 +168,19 @@ const Contact: React.FC<ContactProps> = ({ contact, onAddInquiry }) => {
                     placeholder="List products and sizes needed..."
                   ></textarea>
                 </div>
-                <button type="submit" className="w-full py-5 bg-theme-base text-bg-base font-black uppercase tracking-widest rounded-2xl hover:bg-brand-lime transition-all transform hover:scale-[1.01] text-xs shadow-xl">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  className="w-full py-5 bg-theme-base text-bg-base font-black uppercase tracking-widest rounded-2xl hover:bg-brand-lime transition-all text-xs shadow-xl"
+                >
                   Send Inquiry Now
-                </button>
+                </motion.button>
                 <p className="urdu-text text-theme-base/20 text-center text-base mt-6">ہم آپ سے جلد ہی رابطہ کریں گے۔</p>
               </form>
             )}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   );

@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import ClickEffects from './components/ClickEffects';
+import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -9,13 +11,16 @@ import CategoryView from './pages/CategoryView';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
+import PageTransition from './components/PageTransition';
 import { Category, ContactInfo, Inquiry } from './types';
 import { INITIAL_CATEGORIES, INITIAL_CONTACT } from './constants';
 
 import { ThemeProvider } from './context/ThemeContext';
 import { subscribeToCategories, subscribeToInquiries, saveInquiry, deleteInquiry, syncCategories } from './lib/firebase';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const location = useLocation();
+
   // --- Firebase Integration ---
 
   // Categories State
@@ -27,17 +32,13 @@ const App: React.FC = () => {
       if (data.length > 0) {
         setCategories(data);
       } else {
-        // Fallback or empty state. 
-        // If DB is empty, we might want to keep INITIAL_CATEGORIES or show nothing.
-        // For now, if DB is empty, we show empty list (unless we want to auto-migrate INITIAL).
-        // Let's rely on Admin "Migrate" button to populate DB first.
         setCategories([]);
       }
     });
     return () => unsubscribe();
   }, []);
 
-  // Contact State (Keep persistent local for now, or TODO: migrate to Firebase)
+  // Contact State
   const [contact, setContact] = useState<ContactInfo>(() => {
     const saved = localStorage.getItem('ifi_contact_v4');
     return saved ? JSON.parse(saved) : INITIAL_CONTACT;
@@ -54,12 +55,12 @@ const App: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  // Admin Auth (Keep local)
+  // Admin Auth
   const [isAdmin, setIsAdmin] = useState<boolean>(() => {
     return localStorage.getItem('ifi_admin_auth') === 'true';
   });
 
-  // Sync Contact to LocalStorage (Legacy)
+  // Sync Contact
   useEffect(() => {
     localStorage.setItem('ifi_contact_v4', JSON.stringify(contact));
   }, [contact]);
@@ -67,10 +68,7 @@ const App: React.FC = () => {
   // Handlers
   const handleUpdateCategories = async (newCategories: Category[]) => {
     try {
-      // Current 'categories' state is the "old" state from DB
-      // 'newCategories' is the desired state from Admin
       await syncCategories(categories, newCategories);
-      // No need to setCategories here, the subscription will update it
     } catch (error) {
       console.error("FAILED TO SYNC:", error);
       alert("Error saving data: " + (error as any).message);
@@ -100,38 +98,75 @@ const App: React.FC = () => {
   };
 
   return (
-    <Router>
-      <ThemeProvider>
-        <div className="flex flex-col min-h-screen bg-bg-base transition-colors duration-300 overflow-x-hidden">
-          <Navbar isAdmin={isAdmin} onLogout={handleLogout} />
+    <ThemeProvider>
+      <div className="flex flex-col min-h-screen transition-colors duration-300 overflow-x-hidden">
+        <Navbar isAdmin={isAdmin} onLogout={handleLogout} />
+        <ClickEffects />
 
-          <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={<Home categories={categories} contact={contact} />} />
-              <Route path="/products" element={<ProductList categories={categories} />} />
-              <Route path="/category/:id" element={<CategoryView categories={categories} contact={contact} />} />
-              <Route path="/contact" element={<Contact contact={contact} onAddInquiry={handleAddInquiry} />} />
-              <Route path="/login" element={isAdmin ? <Navigate to="/admin" /> : <Login onLogin={handleLogin} />} />
+        <main className="flex-grow">
+          <AnimatePresence mode="wait">
+            <Routes location={location} {...({ key: location.pathname } as any)}>
+              <Route path="/" element={
+                <PageTransition>
+                  <Home categories={categories} contact={contact} />
+                </PageTransition>
+              } />
+              <Route path="/products" element={
+                <PageTransition>
+                  <ProductList categories={categories} />
+                </PageTransition>
+              } />
+              <Route path="/category/:id" element={
+                <PageTransition>
+                  <CategoryView categories={categories} contact={contact} />
+                </PageTransition>
+              } />
+              <Route path="/contact" element={
+                <PageTransition>
+                  <Contact contact={contact} onAddInquiry={handleAddInquiry} />
+                </PageTransition>
+              } />
+              <Route path="/login" element={
+                <PageTransition>
+                  {isAdmin ? <Navigate to="/admin" /> : <Login onLogin={handleLogin} />}
+                </PageTransition>
+              } />
               <Route
                 path="/admin"
-                element={isAdmin ? (
-                  <AdminDashboard
-                    categories={categories}
-                    onUpdate={handleUpdateCategories}
-                    contact={contact}
-                    onUpdateContact={handleUpdateContact}
-                    inquiries={inquiries}
-                    onDeleteInquiry={handleDeleteInquiry}
-                  />
-                ) : <Navigate to="/login" />}
+                element={
+                  <PageTransition>
+                    {isAdmin ? (
+                      <AdminDashboard
+                        categories={categories}
+                        onUpdate={handleUpdateCategories}
+                        contact={contact}
+                        onUpdateContact={handleUpdateContact}
+                        inquiries={inquiries}
+                        onDeleteInquiry={handleDeleteInquiry}
+                      />
+                    ) : <Navigate to="/login" />}
+                  </PageTransition>
+                }
               />
             </Routes>
-          </main>
+          </AnimatePresence>
+        </main>
 
-          <Footer contact={contact} />
+        <Footer contact={contact} />
 
-        </div>
-      </ThemeProvider>
+      </div>
+    </ThemeProvider>
+  );
+};
+
+// ... (existing imports)
+
+// ... (existing imports)
+
+const App: React.FC = () => {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 };

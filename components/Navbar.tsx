@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Settings, LogOut, Lock } from 'lucide-react';
 import { LOGO_URL } from '../constants';
@@ -9,6 +10,18 @@ interface NavbarProps {
   isAdmin: boolean;
   onLogout: () => void;
 }
+
+const navVariants = {
+  hidden: { y: -20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      duration: 0.4,
+      ease: "easeOut"
+    }
+  }
+};
 
 const Navbar: React.FC<NavbarProps> = ({ isAdmin, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,21 +36,24 @@ const Navbar: React.FC<NavbarProps> = ({ isAdmin, onLogout }) => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="sticky top-0 z-50 bg-bg-base/95 backdrop-blur-xl border-b border-theme-base/5 transition-colors duration-300">
+    <motion.nav
+      initial="hidden"
+      animate="visible"
+      variants={navVariants}
+      className="sticky top-0 z-50 bg-bg-base/95 backdrop-blur-xl border-b border-theme-base/5 transition-colors duration-300"
+    >
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
-          <div className="flex-shrink-0 flex items-center gap-2.5">
-            <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 flex items-center justify-center bg-brand-lime rounded-lg p-1.5 shadow-lg shadow-brand-lime/20">
-                <img src={LOGO_URL} alt="iFi Logo" className="w-full h-full object-contain" />
-              </div>
-              <div className="border-l border-theme-base/10 pl-2.5">
-                <p className="text-[9px] uppercase tracking-[0.3em] text-theme-base font-black leading-none">Ittefaq Fasteners</p>
-                <p className="text-[9px] uppercase tracking-[0.3em] text-brand-text font-black leading-none mt-1">Industries</p>
-                <p className="text-[7px] uppercase tracking-[0.4em] text-theme-base/40 font-bold leading-none mt-1">SINCE 1987</p>
-              </div>
-            </Link>
-          </div>
+          <Link to="/" className="flex-shrink-0 flex items-center gap-2.5 group">
+            <div className="w-10 h-10 flex items-center justify-center bg-brand-lime rounded-lg p-1.5 shadow-lg shadow-brand-lime/20 relative overflow-hidden transition-transform group-hover:scale-105">
+              <img src={LOGO_URL} alt="iFi Logo" className="w-full h-full object-contain relative z-10" />
+            </div>
+            <div className="border-l border-theme-base/10 pl-2.5">
+              <p className="text-[9px] uppercase tracking-[0.3em] text-theme-base font-black leading-none">Ittefaq Fasteners</p>
+              <p className="text-[9px] uppercase tracking-[0.3em] text-brand-text font-black leading-none mt-1">Industries</p>
+              <p className="text-[7px] uppercase tracking-[0.4em] text-theme-base/40 font-bold leading-none mt-1">SINCE 1987</p>
+            </div>
+          </Link>
 
           <div className="hidden md:block">
             <div className="ml-10 flex items-center space-x-8">
@@ -45,7 +61,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAdmin, onLogout }) => {
                 <Link
                   key={link.name}
                   to={link.path}
-                  className={`px-1 py-1 text-[10px] font-black tracking-[0.3em] transition-all uppercase ${isActive(link.path)
+                  className={`relative px-1 py-1 text-[10px] font-black tracking-[0.3em] transition-all uppercase ${isActive(link.path)
                     ? 'text-brand-lime border-b border-brand-lime'
                     : 'text-theme-base/40 hover:text-theme-base'
                     }`}
@@ -104,44 +120,51 @@ const Navbar: React.FC<NavbarProps> = ({ isAdmin, onLogout }) => {
       </div>
 
       {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden bg-bg-base/95 backdrop-blur-xl border-t border-theme-base/5 animate-fade-in">
-          <div className="px-4 pt-4 pb-8 space-y-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.path}
-                onClick={() => setIsOpen(false)}
-                className={`block px-4 py-4 text-[11px] font-black tracking-[0.3em] uppercase border-b border-theme-base/5 ${isActive(link.path) ? 'text-brand-lime font-bold' : 'text-theme-base/40'
-                  }`}
-              >
-                {link.name}
-              </Link>
-            ))}
-            {isAdmin && (
-              <>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="md:hidden bg-bg-base/95 backdrop-blur-xl border-t border-theme-base/5 overflow-hidden"
+          >
+            <div className="px-4 pt-4 pb-8 space-y-1">
+              {navLinks.map((link) => (
                 <Link
-                  to="/admin"
+                  key={link.name}
+                  to={link.path}
                   onClick={() => setIsOpen(false)}
-                  className="block px-4 py-4 text-[11px] font-black tracking-[0.3em] uppercase text-brand-lime border-b border-theme-base/5"
+                  className={`block px-4 py-4 text-[11px] font-black tracking-[0.3em] uppercase border-b border-theme-base/5 ${isActive(link.path) ? 'text-brand-lime font-bold' : 'text-theme-base/40'
+                    }`}
                 >
-                  ADMIN PANEL
+                  {link.name}
                 </Link>
-                <button
-                  onClick={() => {
-                    onLogout();
-                    setIsOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-4 text-[11px] font-black tracking-[0.3em] uppercase text-red-500/70"
-                >
-                  LOGOUT
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-    </nav>
+              ))}
+              {isAdmin && (
+                <>
+                  <Link
+                    to="/admin"
+                    onClick={() => setIsOpen(false)}
+                    className="block px-4 py-4 text-[11px] font-black tracking-[0.3em] uppercase text-brand-lime border-b border-theme-base/5"
+                  >
+                    ADMIN PANEL
+                  </Link>
+                  <button
+                    onClick={() => {
+                      onLogout();
+                      setIsOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-4 text-[11px] font-black tracking-[0.3em] uppercase text-red-500/70"
+                  >
+                    LOGOUT
+                  </button>
+                </>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.nav>
   );
 };
 

@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, Save, X, Phone, Mail, MapPin, Globe, Package, Info, Image as ImageIcon, Type, LayoutDashboard, Inbox, Calendar, MessageSquare, Search, Edit2, CheckCircle, Star, ArrowLeft, MessageCircle, FileText } from 'lucide-react';
 import { Category, ProductSeries, ContactInfo, Inquiry } from '../types';
 import { migrateCategories } from '../lib/firebase';
@@ -132,7 +133,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
       sizes: ['M8'],
     };
     setTempCategories(prev => prev.map(c =>
-      c.id === catId ? { ...c, series: [...c.series, newSeries] } : c
+      c.id === catId ? { ...c, series: [...(c.series || []), newSeries] } : c
     ));
     setSelectedCategoryId(catId);
     setSelectedProductId(newSeries.id);
@@ -200,10 +201,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
   };
 
   return (
-    <div className="min-h-screen pt-20 md:pt-24 pb-20 px-4 max-w-7xl mx-auto bg-bg-base transition-colors duration-300">
+    <div className="min-h-screen pt-20 md:pt-24 pb-20 px-4 max-w-7xl mx-auto transition-colors duration-300">
       {/* Dashboard Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-theme-base/10 pb-10 mb-10">
-        <div className="space-y-1">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="space-y-1"
+        >
           <div className="flex items-center gap-3 text-brand-lime mb-1 animate-fade-in">
             <LayoutDashboard className="w-4 h-4 md:w-5 md:h-5" />
             <p className="text-[9px] md:text-[10px] font-black tracking-[0.5em] uppercase opacity-60">Control Panel</p>
@@ -213,9 +219,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
             <span className="text-[10px] text-brand-lime uppercase tracking-widest opacity-60">Connected to Cloud</span>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="flex w-full md:w-auto bg-theme-base/5 p-1 rounded-2xl border border-theme-base/5 overflow-x-auto no-scrollbar">
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="flex w-full md:w-auto bg-theme-base/5 p-1 rounded-2xl border border-theme-base/5 overflow-x-auto no-scrollbar"
+        >
           {[
             { id: 'catalog', label: 'CATALOG', icon: Package },
             { id: 'inbox', label: `INBOX (${inquiries.length})`, icon: Inbox },
@@ -234,7 +245,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
               {tab.label}
             </button>
           ))}
-        </div>
+        </motion.div>
       </div>
 
       {activeTab === 'inbox' && (
@@ -281,7 +292,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                     placeholder="Search inventory..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-input-bg border border-theme-base/10 rounded-2xl pl-14 pr-6 py-4 text-sm text-theme-base focus:outline-none focus:border-brand-lime/30 placeholder:text-theme-base/30"
+                    style={{ color: '#000000' }} // Force black text for visibility
+                    className="w-full bg-input-bg border border-theme-base/10 rounded-2xl pl-14 pr-6 py-4 text-sm focus:outline-none focus:border-brand-lime/30 placeholder:text-theme-base/30"
                   />
                 </div>
                 <button
@@ -303,26 +315,35 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-theme-base/[0.03]">
-                    {filteredCategories.map(cat => (
-                      <tr key={cat.id} className="hover:bg-theme-base/[0.01] transition-colors group">
-                        <td className="px-8 py-4">
-                          <div className="flex items-center gap-4">
-                            <img src={cat.image} className="w-12 h-12 rounded-lg object-cover border border-theme-base/10" />
-                            <div>
-                              <p className="text-theme-base font-black text-sm uppercase">{cat.name}</p>
-                              <p className="urdu-text text-theme-base/50 text-sm leading-none">{cat.nameUrdu}</p>
+                    <AnimatePresence mode='popLayout'>
+                      {filteredCategories.map((cat, index) => (
+                        <motion.tr
+                          key={cat.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ duration: 0.3, delay: index * 0.05 }}
+                          className="hover:bg-theme-base/[0.01] transition-colors group"
+                        >
+                          <td className="px-8 py-4">
+                            <div className="flex items-center gap-4">
+                              <img src={cat.image} className="w-12 h-12 rounded-lg object-cover border border-theme-base/10" />
+                              <div>
+                                <p className="text-theme-base font-black text-sm uppercase">{cat.name}</p>
+                                <p className="urdu-text text-theme-base/50 text-sm leading-none">{cat.nameUrdu}</p>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-8 py-4 text-theme-base/20 text-xs font-black">{(cat?.series || []).length} items</td>
-                        <td className="px-8 py-4 text-right">
-                          <div className="flex justify-end gap-2">
-                            <button onClick={() => { setSelectedCategoryId(cat.id); setViewMode('edit-category'); }} className="p-2.5 bg-theme-base/5 rounded-lg text-theme-base/20 hover:text-theme-base"><Edit2 className="w-3.5 h-3.5" /></button>
-                            <button onClick={(e) => handleRemoveCategory(e, cat.id)} className="p-2.5 bg-red-500/5 rounded-lg text-red-500/30 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td className="px-8 py-4 text-theme-base/20 text-xs font-black">{(cat?.series || []).length} items</td>
+                          <td className="px-8 py-4 text-right">
+                            <div className="flex justify-end gap-2">
+                              <button onClick={() => { setSelectedCategoryId(cat.id); setViewMode('edit-category'); }} className="p-2.5 bg-theme-base/5 rounded-lg text-theme-base/20 hover:text-theme-base"><Edit2 className="w-3.5 h-3.5" /></button>
+                              <button onClick={(e) => handleRemoveCategory(e, cat.id)} className="p-2.5 bg-red-500/5 rounded-lg text-red-500/30 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
+                            </div>
+                          </td>
+                        </motion.tr>
+                      ))}
+                    </AnimatePresence>
                   </tbody>
                 </table>
               </div>
@@ -481,7 +502,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                   type="date"
                   value={invoiceDate}
                   onChange={e => setInvoiceDate(e.target.value)}
-                  className="bg-input-bg border border-theme-base/10 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors"
+                  className="bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors"
                 />
                 <button onClick={handlePrintInvoice} className="bg-brand-lime text-black px-8 py-3.5 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-brand-lime/10 flex items-center gap-2">
                   <FileText className="w-4 h-4" /> GENERATE & PRINT
@@ -492,26 +513,26 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Customer Info */}
               <div className="lg:col-span-1 space-y-6">
-                <div className="glass-panel p-6 rounded-3xl space-y-4 border border-theme-base/10">
+                <div className="glass-panel p-6 rounded-3xl space-y-4 border border-theme-base/10 bg-theme-base/[0.03] shadow-sm">
                   <h3 className="text-[10px] font-black text-theme-base uppercase tracking-widest border-b border-theme-base/5 pb-2">Customer Details</h3>
                   <div className="space-y-3">
                     <input
                       placeholder="Customer Name"
                       value={invoiceCustomer.name}
                       onChange={e => setInvoiceCustomer({ ...invoiceCustomer, name: e.target.value })}
-                      className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors"
+                      className="w-full bg-white/5 [.light-theme_&]:bg-white border border-theme-base/20 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors shadow-inner"
                     />
                     <input
                       placeholder="Phone Number"
                       value={invoiceCustomer.phone}
                       onChange={e => setInvoiceCustomer({ ...invoiceCustomer, phone: e.target.value })}
-                      className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors"
+                      className="w-full bg-white/5 [.light-theme_&]:bg-white border border-theme-base/20 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors shadow-inner"
                     />
                     <textarea
                       placeholder="Address"
                       value={invoiceCustomer.address}
                       onChange={e => setInvoiceCustomer({ ...invoiceCustomer, address: e.target.value })}
-                      className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors resize-none h-20"
+                      className="w-full bg-white/5 [.light-theme_&]:bg-white border border-theme-base/20 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors resize-none h-20 shadow-inner"
                     />
                   </div>
                 </div>
@@ -519,7 +540,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
 
               {/* Items List */}
               <div className="lg:col-span-2 space-y-6">
-                <div className="glass-panel p-6 rounded-3xl space-y-4 border border-theme-base/10">
+                <div className="glass-panel p-6 rounded-3xl space-y-4 border border-theme-base/10 bg-theme-base/[0.03] shadow-sm">
                   <div className="flex justify-between items-center border-b border-theme-base/5 pb-2">
                     <h3 className="text-[10px] font-black text-theme-base uppercase tracking-widest">Order Items</h3>
                     <div className="text-[10px] font-black text-brand-text uppercase tracking-widest">
@@ -529,7 +550,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
 
                   <div className="space-y-3">
                     {invoiceItems.map((item, idx) => (
-                      <div key={item.id} className="grid grid-cols-12 gap-2 items-center bg-input-bg/30 p-2 rounded-xl">
+                      <div key={item.id} className="grid grid-cols-12 gap-2 items-center bg-theme-base/5 p-3 rounded-xl border border-theme-base/5">
                         <div className="col-span-1 text-center text-[9px] text-theme-base/30 font-bold">{idx + 1}</div>
                         <div className="col-span-5">
                           <input
@@ -579,7 +600,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                         <textarea
                           value={invoiceNotes}
                           onChange={e => setInvoiceNotes(e.target.value)}
-                          className="w-full h-24 bg-input-bg border border-theme-base/10 rounded-xl p-4 text-xs text-theme-base resize-none"
+                          className="w-full h-24 bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-xl p-4 text-xs text-theme-base resize-none"
                           placeholder="Payment terms, delivery notes, etc."
                         />
                       </div>
@@ -594,7 +615,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                             type="number"
                             value={invoiceDiscount}
                             onChange={e => setInvoiceDiscount(parseFloat(e.target.value) || 0)}
-                            className="w-24 bg-input-bg border border-theme-base/10 rounded-lg px-2 py-1 text-right text-xs font-mono"
+                            className="w-24 bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-lg px-2 py-1 text-right text-xs font-mono"
                           />
                         </div>
                         <div className="flex justify-between items-center gap-4">
@@ -603,7 +624,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                             type="number"
                             value={invoiceTax}
                             onChange={e => setInvoiceTax(parseFloat(e.target.value) || 0)}
-                            className="w-24 bg-input-bg border border-theme-base/10 rounded-lg px-2 py-1 text-right text-xs font-mono"
+                            className="w-24 bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-lg px-2 py-1 text-right text-xs font-mono"
                           />
                         </div>
                         <div className="flex justify-between items-center border-t border-theme-base/10 pt-4">

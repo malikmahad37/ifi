@@ -1,7 +1,7 @@
-
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, MessageCircle, Phone, ShieldCheck, Box, Zap } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Box, Zap } from 'lucide-react';
 import { Category, ContactInfo } from '../types';
 import Logo from '../components/Logo';
 
@@ -10,94 +10,185 @@ interface HomeProps {
   contact: ContactInfo;
 }
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" }
+  }
+};
+
+import NutBoltAnimation from '../components/NutBoltAnimation';
+
+// ... (existing helper functions or interfaces)
+
 const Home: React.FC<HomeProps> = ({ categories, contact }) => {
   return (
-    <div className="bg-bg-base min-h-screen transition-colors duration-300">
+    <div className="min-h-screen transition-colors duration-300 overflow-hidden">
       {/* Hero Section - Optimized for Mobile */}
-      <section className="relative pt-10 md:pt-16 pb-12 flex flex-col items-center justify-center overflow-hidden px-4">
+      <section className="relative pt-10 md:pt-16 pb-8 flex flex-col items-center justify-center min-h-[60vh] px-4">
+        {/* Animated Nut/Bolt Background for Light Theme */}
+        <NutBoltAnimation />
+
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[300px] md:w-[400px] h-[300px] md:h-[400px] bg-brand-lime/10 rounded-full blur-[80px] md:blur-[100px]"></div>
+          {/* Background removed as per user request - effectively handled by NutBoltAnimation now */}
         </div>
 
-        <div className="z-10 text-center animate-fade-in space-y-6 md:space-y-8 max-w-lg w-full">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+          className="z-10 text-center space-y-6 md:space-y-8 max-w-2xl w-full"
+        >
           {/* Logo Container Box */}
           <div className="flex flex-col items-center">
-            <div className="bg-brand-lime p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] shadow-2xl shadow-brand-lime/20 mb-6 md:mb-8 transform hover:scale-105 transition-transform duration-500">
-              <Logo className="w-24 h-24 md:w-44 md:h-44" />
-            </div>
+            <motion.div
+              variants={itemVariants}
+              whileHover={{ scale: 1.02 }}
+              className="bg-brand-lime p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] shadow-2xl shadow-brand-lime/20 mb-6 md:mb-10 cursor-pointer"
+            >
+              <Logo className="w-24 h-24 md:w-56 md:h-56" />
+            </motion.div>
 
-            <div className="space-y-1">
-              <h2 className="text-5xl md:text-7xl font-black text-brand-lime tracking-tighter uppercase leading-none">iFi</h2>
-              <h1 className="text-xs md:text-xl font-black text-[#8ea4b0] tracking-[0.15em] md:tracking-[0.1em] uppercase leading-tight mt-1">
-                ITTEFAQ FASTENERS INDUSTRIES
+            <motion.div variants={itemVariants} className="space-y-2">
+              <h2 className="text-6xl md:text-8xl font-black text-brand-lime tracking-tighter uppercase leading-none drop-shadow-sm">iFi</h2>
+              <h1 className="text-sm md:text-2xl font-black text-[#8ea4b0] tracking-[0.2em] md:tracking-[0.25em] uppercase leading-tight mt-2">
+                Ittefaq Fasteners Industries
               </h1>
-              <p className="urdu-text text-brand-lime text-xl md:text-3xl font-bold mt-2">
+              <motion.div
+                className="h-1 w-24 bg-brand-lime/50 mx-auto my-4 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: 100 }}
+                transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
+              />
+              <p className="urdu-text text-brand-lime text-2xl md:text-4xl font-bold mt-2 drop-shadow-lg">
                 اتفاق فاسٹنرز انڈسٹریز
               </p>
-            </div>
+            </motion.div>
           </div>
 
-
-        </div>
+          <motion.div variants={itemVariants} className="pt-8">
+            <Link to="/products">
+              <motion.button
+                whileHover={{ scale: 1.02, backgroundColor: "rgba(var(--brand-lime), 0.9)" }}
+                whileTap={{ scale: 0.98 }}
+                className="bg-brand-lime text-bg-base font-black px-8 py-4 rounded-full text-sm md:text-base uppercase tracking-widest shadow-lg shadow-brand-lime/20 flex items-center gap-2 mx-auto"
+              >
+                Explore Products <ArrowRight className="w-4 h-4" />
+              </motion.button>
+            </Link>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Home Catalog - Premium Grid */}
-      <section className="py-16 md:py-24 px-4 max-w-6xl mx-auto">
-        <div className="text-center mb-10 md:mb-16 space-y-2">
-          <h2 className="text-3xl md:text-5xl font-black text-theme-base uppercase tracking-tight">
-            Our <span className="text-brand-lime">Products</span>
+      <section className="pb-16 pt-8 md:pb-24 px-4 max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-10 md:mb-16 space-y-3"
+        >
+          <h2 className="text-3xl md:text-6xl font-black text-theme-base uppercase tracking-tight">
+            Our <span className="text-brand-lime inline-block">Products</span>
           </h2>
-          <p className="urdu-text text-white/30 text-lg md:text-xl font-bold">ہماری پروڈکٹس دیکھیں</p>
-        </div>
+          <p className="urdu-text text-gray-400 text-lg md:text-2xl font-bold">ہماری پروڈکٹس دیکھیں</p>
+        </motion.div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-10">
-          {categories.map((category) => (
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+          {categories.map((category, index) => (
             <Link
               key={category.id}
               to={`/category/${category.id}`}
-              className="group relative overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] aspect-[3/4] md:aspect-[4/5] glass-panel border border-theme-base/5 shadow-2xl transition-all hover:border-brand-lime/20"
             >
-              <img
-                src={category.image}
-                alt={category.name}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 brightness-[0.35]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-transparent to-transparent"></div>
-              <div className="absolute bottom-0 left-0 p-4 md:p-8 w-full transform md:translate-y-1 group-hover:translate-y-0 transition-transform">
-                <h3 className="text-base md:text-2xl font-black text-theme-base mb-0.5 uppercase tracking-tighter leading-tight drop-shadow-md">{category.name}</h3>
-                <p className="urdu-text text-brand-lime text-base md:text-xl font-bold mb-3 md:mb-4">{category.nameUrdu}</p>
-                <div className="flex items-center gap-1.5 md:gap-2 text-brand-lime font-black text-[8px] md:text-[9px] tracking-[0.2em] uppercase opacity-70 group-hover:opacity-100 transition-opacity">
-                  View <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.05, ease: "easeOut" }}
+                whileHover={{ y: -5 }}
+                className="group relative overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] aspect-[3/4] md:aspect-[4/5] glass-panel border border-theme-base/5 shadow-2xl hover:shadow-brand-lime/10 transition-all h-full"
+              >
+                <div className="absolute inset-0 bg-brand-lime/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <motion.img
+                  src={category.image}
+                  alt={category.name}
+                  className="absolute inset-0 w-full h-full object-cover brightness-[0.4] group-hover:brightness-[0.5] transition-all duration-500"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.4 }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-transparent to-transparent opacity-80" />
+
+                <div className="absolute bottom-0 left-0 p-5 md:p-8 w-full">
+                  <motion.div
+                    initial={{ x: -10, opacity: 0 }}
+                    whileInView={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.1 + index * 0.05 }}
+                  >
+                    <h3 className="text-lg md:text-3xl font-black text-theme-base mb-1 uppercase tracking-tighter leading-none drop-shadow-md group-hover:text-brand-lime transition-colors">{category.name}</h3>
+                    <p className="urdu-text text-brand-lime/80 text-lg md:text-2xl font-bold mb-4 md:mb-6">{category.nameUrdu}</p>
+                  </motion.div>
+
+                  <div className="flex items-center gap-2 text-brand-lime font-black text-[9px] md:text-[10px] tracking-[0.2em] uppercase overflow-hidden">
+                    <span className="transform translate-y-8 group-hover:translate-y-0 transition-transform duration-300">View Collection</span>
+                    <ArrowRight className="w-3 h-3 md:w-4 md:h-4 transform -translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300 delay-75" />
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             </Link>
           ))}
         </div>
       </section>
 
       {/* Quality Trust - Responsive Features */}
-      <section className="py-16 md:py-20 bg-theme-base/[0.01]">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-10 text-center">
+      <section className="py-16 md:py-32 bg-theme-base/[0.02] relative">
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-theme-base/10 to-transparent" />
+
+        <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16 text-center">
           {[
             { icon: ShieldCheck, title: "Premium Quality", urdu: "اعلیٰ معیار", desc: "Rigorous ISO standard testing for every batch." },
             { icon: Box, title: "All Sizes", urdu: "تمام سائز", desc: "Vast inventory of every metric and standard size." },
             { icon: Zap, title: "Fast Delivery", urdu: "فوری ڈیلیوری", desc: "Optimized logistics for express delivery nationwide." }
           ].map((item, i) => (
-            <div key={i} className="space-y-4 group">
-              <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-brand-lime/5 mx-auto flex items-center justify-center text-brand-lime group-hover:bg-brand-lime group-hover:text-black transition-all duration-500 shadow-lg border border-theme-base/5">
-                <item.icon className="w-7 h-7 md:w-8 md:h-8" />
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
+              whileHover={{ y: -5 }}
+              className="space-y-6 group p-6 rounded-3xl hover:bg-gray-50 transition-colors duration-300"
+            >
+              <div
+                className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-brand-lime/5 mx-auto flex items-center justify-center text-brand-lime group-hover:bg-brand-lime group-hover:text-black transition-all duration-300 shadow-xl"
+              >
+                <item.icon className="w-8 h-8 md:w-10 md:h-10" />
               </div>
-              <div className="space-y-1">
-                <h4 className="text-base md:text-lg font-black text-theme-base uppercase tracking-widest leading-none">{item.title}</h4>
-                <p className="urdu-text text-brand-lime text-xl font-bold leading-none">{item.urdu}</p>
+              <div className="space-y-2">
+                <h4 className="text-lg md:text-xl font-black text-theme-base uppercase tracking-widest leading-none group-hover:text-brand-lime transition-colors">{item.title}</h4>
+                <p className="urdu-text text-brand-lime text-2xl font-bold leading-none">{item.urdu}</p>
               </div>
-              <p className="text-theme-base/20 text-[10px] md:text-[11px] leading-relaxed max-w-[200px] mx-auto opacity-60">{item.desc}</p>
-            </div>
+              <p className="text-theme-base/30 text-xs md:text-sm leading-relaxed max-w-[250px] mx-auto">
+                {item.desc}
+              </p>
+            </motion.div>
           ))}
         </div>
       </section>
     </div>
   );
 };
-
 export default Home;
