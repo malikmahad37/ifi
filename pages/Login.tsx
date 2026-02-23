@@ -21,7 +21,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === 'admin' && password === 'ifi@1987') {
+    if (username === 'ifi' && password === 'ifi2026') {
       onLogin();
     } else {
       setError('Invalid username or password');

@@ -183,11 +183,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
   };
 
   const allProducts = useMemo(() => {
-    return (categories || []).flatMap(c => (c.series || []).map(s => ({
+    // Optimization: Don't calculate if not in billing tab to save initial load time
+    if (activeTab !== 'billing') return [];
+
+    return (categories || []).flatMap(c => (c.series || []).slice(0, 100).map(s => ({ // Limit to prevent massive arrays
       label: `${c.name} - ${s.name} (${(s.sizes || []).join(', ')})`,
       value: `${c.name} - ${s.name}`
     })));
-  }, [categories]);
+  }, [categories, activeTab]);
 
   const { subTotal, taxAmount, discountAmount, grandTotal } = useMemo(() => {
     const sub = invoiceItems.reduce((sum, item) => sum + item.amount, 0);
