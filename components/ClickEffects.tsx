@@ -52,27 +52,47 @@ const ClickEffects: React.FC = () => {
                 });
             }
 
-            setParticles(prev => [...prev.slice(-15), ...newParticles]); // Limit total particles
+            setParticles(prev => [...prev.slice(-10), ...newParticles]); // Hard limit total particles
 
             // Cleanup
             setTimeout(() => {
                 setParticles(prev => prev.filter(p => !newParticles.find(np => np.id === p.id)));
-            }, 600);
+            }, 400); // Shorter lifespan to clear DOM quickly
+        };
+
+        const handleMouseMove = (e: MouseEvent) => {
+            const now = Date.now();
+            if (now - lastSpawnTime.current > 120) { // Severe throttle (max ~8/sec)
+                spawnParticle(e.clientX, e.clientY, false);
+                lastSpawnTime.current = now;
+            }
         };
 
         const handleClick = (e: MouseEvent) => spawnParticle(e.clientX, e.clientY, true);
 
         // Touch handling
+        const handleTouchMove = (e: TouchEvent) => {
+            const touch = e.touches[0];
+            const now = Date.now();
+            if (now - lastSpawnTime.current > 120) {
+                spawnParticle(touch.clientX, touch.clientY, false);
+                lastSpawnTime.current = now;
+            }
+        };
         const handleTouchStart = (e: TouchEvent) => {
             const touch = e.touches[0];
             spawnParticle(touch.clientX, touch.clientY, true);
         };
 
+        window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('click', handleClick);
+        window.addEventListener('touchmove', handleTouchMove);
         window.addEventListener('touchstart', handleTouchStart);
 
         return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('click', handleClick);
+            window.removeEventListener('touchmove', handleTouchMove);
             window.removeEventListener('touchstart', handleTouchStart);
         };
     }, [theme]); // Re-bind if theme changes to ensure new particles get correct color immediately
@@ -97,7 +117,7 @@ const ClickEffects: React.FC = () => {
                             y: particle.velocity.y * 20 + 20, // Gravity effect (fall down slightly)
                             rotate: particle.rotation + 180
                         }}
-                        transition={{ duration: 0.6, ease: "easeOut" }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
                         className="absolute rounded-sm shadow-sm"
                         style={{
                             left: particle.x,
