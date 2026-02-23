@@ -7,18 +7,7 @@ interface LoginProps {
   onLogin: () => void;
 }
 
-const blobVariants = {
-  animate: (i: number) => ({
-    x: [0, 50, -50, 0],
-    y: [0, -50, 50, 0],
-    scale: [1, 1.2, 0.8, 1],
-    transition: {
-      duration: 10 + i * 2,
-      repeat: Infinity,
-      ease: "linear"
-    }
-  })
-};
+// Background blobs animation removed due to extreme performance cost when combined with heavy blur filters.
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [username, setUsername] = useState('');
@@ -43,20 +32,10 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 transition-colors duration-300 relative overflow-hidden">
-      {/* Background Accents */}
+      {/* Background Accents (Optimized: Static to prevent severe blur repaint lag) */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-        <motion.div
-          custom={1}
-          variants={blobVariants}
-          animate="animate"
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-lime/10 rounded-full blur-[120px]"
-        />
-        <motion.div
-          custom={2}
-          variants={blobVariants}
-          animate="animate"
-          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-brand-lime/5 rounded-full blur-[120px]"
-        />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-lime/10 rounded-full blur-[100px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-brand-lime/5 rounded-full blur-[100px]" />
       </div>
 
       <motion.div

@@ -52,17 +52,17 @@ const ClickEffects: React.FC = () => {
                 });
             }
 
-            setParticles(prev => [...prev.slice(-10), ...newParticles]); // Hard limit total particles
+            setParticles(prev => [...prev.slice(-15), ...newParticles]); // Limit total particles
 
             // Cleanup
             setTimeout(() => {
                 setParticles(prev => prev.filter(p => !newParticles.find(np => np.id === p.id)));
-            }, 400); // Shorter lifespan to clear DOM quickly
+            }, 600);
         };
 
         const handleMouseMove = (e: MouseEvent) => {
             const now = Date.now();
-            if (now - lastSpawnTime.current > 120) { // Severe throttle (max ~8/sec)
+            if (now - lastSpawnTime.current > 50) { // Throttle: increased to 50ms to fix severe lag
                 spawnParticle(e.clientX, e.clientY, false);
                 lastSpawnTime.current = now;
             }
@@ -74,7 +74,7 @@ const ClickEffects: React.FC = () => {
         const handleTouchMove = (e: TouchEvent) => {
             const touch = e.touches[0];
             const now = Date.now();
-            if (now - lastSpawnTime.current > 120) {
+            if (now - lastSpawnTime.current > 50) {
                 spawnParticle(touch.clientX, touch.clientY, false);
                 lastSpawnTime.current = now;
             }
@@ -117,7 +117,7 @@ const ClickEffects: React.FC = () => {
                             y: particle.velocity.y * 20 + 20, // Gravity effect (fall down slightly)
                             rotate: particle.rotation + 180
                         }}
-                        transition={{ duration: 0.4, ease: "easeOut" }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
                         className="absolute rounded-sm shadow-sm"
                         style={{
                             left: particle.x,
