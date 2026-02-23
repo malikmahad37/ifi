@@ -45,7 +45,7 @@ const ProductList: React.FC<ProductListProps> = ({ categories }) => {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="mb-6 space-y-2"
         >
-          <p className="text-brand-lime text-[9px] font-black tracking-[0.5em] uppercase opacity-60">The Collection</p>
+          <p className="text-brand-lime [.light-theme_&]:text-brand-text text-[9px] font-black tracking-[0.5em] uppercase opacity-60 [.light-theme_&]:opacity-80">The Collection</p>
           <div className="flex flex-col md:flex-row justify-between items-end gap-6">
             <div>
               <h1 className="text-3xl md:text-5xl font-black text-theme-base leading-none uppercase tracking-tighter">
