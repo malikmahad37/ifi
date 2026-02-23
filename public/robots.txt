@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ifi-ifi.vercel.app/sitemap.xml
