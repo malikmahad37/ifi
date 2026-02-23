@@ -295,8 +295,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                     placeholder="Search inventory..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{ color: '#000000' }} // Force black text for visibility
-                    className="w-full bg-input-bg border border-theme-base/10 rounded-2xl pl-14 pr-6 py-4 text-sm focus:outline-none focus:border-brand-lime/30 placeholder:text-theme-base/30 [.light-theme_&]:text-theme-base/70"
+                    className="w-full bg-input-bg border border-theme-base/10 rounded-2xl pl-14 pr-6 py-4 text-sm text-theme-base focus:outline-none focus:border-brand-lime/30 placeholder:text-theme-base/30 [.light-theme_&]:placeholder:text-theme-base/70"
                   />
                 </div>
                 <button
