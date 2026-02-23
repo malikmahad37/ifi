@@ -95,26 +95,26 @@ const ProductList: React.FC<ProductListProps> = ({ categories }) => {
                     <motion.img
                       src={category.image}
                       alt={category.name}
-                      className="w-full h-full object-cover brightness-75"
+                      className="w-full h-full object-cover brightness-75 [.light-theme_&]:brightness-95"
                       whileHover={{ scale: 1.05 }}
                       transition={{ duration: 0.4 }}
                     />
-                    <div className="absolute top-3 left-3 px-2 py-1 bg-theme-base/90 rounded text-[9px] text-bg-base font-black uppercase tracking-widest z-10">
+                    <div className="absolute top-3 left-3 px-2 py-1 bg-theme-base/90 [.light-theme_&]:bg-brand-lime rounded text-[9px] text-bg-base [.light-theme_&]:text-white font-black uppercase tracking-widest z-10 shadow-sm">
                       0{idx + 1}
                     </div>
-                    <div className="absolute inset-0 bg-brand-lime/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute inset-0 bg-brand-lime/10 [.light-theme_&]:bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
-                  <div className="p-4 md:p-6 space-y-3">
+                  <div className="p-4 md:p-6 space-y-3 bg-transparent [.light-theme_&]:bg-white/80">
                     <div className="space-y-0.5">
-                      <h2 className="text-lg md:text-xl font-black text-theme-base tracking-tight uppercase leading-tight group-hover:text-brand-lime transition-colors">{category.name}</h2>
-                      <p className="urdu-text text-brand-lime/80 text-sm md:text-base font-bold">{category.nameUrdu}</p>
+                      <h2 className="text-lg md:text-xl font-black text-theme-base tracking-tight uppercase leading-tight group-hover:text-brand-lime [.light-theme_&]:group-hover:text-brand-text transition-colors">{category.name}</h2>
+                      <p className="urdu-text text-brand-lime/80 [.light-theme_&]:text-brand-text/90 text-sm md:text-base font-bold">{category.nameUrdu}</p>
                     </div>
 
-                    <p className="text-theme-base/30 text-[10px] md:text-xs leading-relaxed line-clamp-2">
+                    <p className="text-theme-base/30 [.light-theme_&]:text-theme-muted text-[10px] md:text-xs leading-relaxed line-clamp-2">
                       {category.description}
                     </p>
 
-                    <div className="flex items-center gap-2 text-brand-lime font-black tracking-[0.1em] uppercase text-[9px] pt-2 border-t border-theme-base/5">
+                    <div className="flex items-center gap-2 text-brand-lime [.light-theme_&]:text-brand-text font-black tracking-[0.1em] uppercase text-[9px] pt-2 border-t border-theme-base/5 [.light-theme_&]:border-theme-base/10">
                       <span className="group-hover:translate-x-1 transition-transform">View Series</span>
                       <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                     </div>

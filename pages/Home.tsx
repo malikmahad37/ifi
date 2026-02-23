@@ -126,23 +126,23 @@ const Home: React.FC<HomeProps> = ({ categories, contact }) => {
                 <motion.img
                   src={category.image}
                   alt={category.name}
-                  className="absolute inset-0 w-full h-full object-cover brightness-[0.4] group-hover:brightness-[0.5] transition-all duration-500"
+                  className="absolute inset-0 w-full h-full object-cover brightness-[0.4] group-hover:brightness-[0.5] [.light-theme_&]:brightness-[0.85] [.light-theme_&]:group-hover:brightness-[0.95] transition-all duration-500"
                   whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.4 }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-transparent to-transparent opacity-80" />
+                <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-transparent to-transparent opacity-80 [.light-theme_&]:from-white/95 [.light-theme_&]:via-white/50" />
 
-                <div className="absolute bottom-0 left-0 p-5 md:p-8 w-full">
+                <div className="absolute bottom-0 left-0 p-5 md:p-8 w-full z-10">
                   <motion.div
                     initial={{ x: -10, opacity: 0 }}
                     whileInView={{ x: 0, opacity: 1 }}
                     transition={{ delay: 0.1 + index * 0.05 }}
                   >
-                    <h3 className="text-lg md:text-3xl font-black text-theme-base mb-1 uppercase tracking-tighter leading-none drop-shadow-md group-hover:text-brand-lime transition-colors">{category.name}</h3>
-                    <p className="urdu-text text-brand-lime/80 text-lg md:text-2xl font-bold mb-4 md:mb-6">{category.nameUrdu}</p>
+                    <h3 className="text-lg md:text-3xl font-black text-theme-base mb-1 uppercase tracking-tighter leading-none drop-shadow-md group-hover:text-brand-lime [.light-theme_&]:group-hover:text-brand-text transition-colors">{category.name}</h3>
+                    <p className="urdu-text text-brand-lime/80 [.light-theme_&]:text-brand-text/90 text-lg md:text-2xl font-bold mb-4 md:mb-6">{category.nameUrdu}</p>
                   </motion.div>
 
-                  <div className="flex items-center gap-2 text-brand-lime font-black text-[9px] md:text-[10px] tracking-[0.2em] uppercase overflow-hidden">
+                  <div className="flex items-center gap-2 text-brand-lime [.light-theme_&]:text-brand-text font-black text-[9px] md:text-[10px] tracking-[0.2em] uppercase overflow-hidden">
                     <span className="transform translate-y-8 group-hover:translate-y-0 transition-transform duration-300">View Collection</span>
                     <ArrowRight className="w-3 h-3 md:w-4 md:h-4 transform -translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300 delay-75" />
                   </div>
