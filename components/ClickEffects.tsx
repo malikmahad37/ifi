@@ -20,7 +20,7 @@ const ClickEffects: React.FC = () => {
     useEffect(() => {
         const spawnParticle = (x: number, y: number, isClick: boolean) => {
             const now = Date.now();
-            const count = isClick ? 8 : 1; // Burst on click, stream on move
+            const count = isClick ? 5 : 1; // Burst on click, stream on move
             const newParticles: Particle[] = [];
             const isDark = theme === 'dark';
 
@@ -52,7 +52,7 @@ const ClickEffects: React.FC = () => {
                 });
             }
 
-            setParticles(prev => [...prev.slice(-30), ...newParticles]); // Limit total particles
+            setParticles(prev => [...prev.slice(-15), ...newParticles]); // Limit total particles
 
             // Cleanup
             setTimeout(() => {
@@ -62,7 +62,7 @@ const ClickEffects: React.FC = () => {
 
         const handleMouseMove = (e: MouseEvent) => {
             const now = Date.now();
-            if (now - lastSpawnTime.current > 10) { // Throttle
+            if (now - lastSpawnTime.current > 50) { // Throttle: increased to 50ms to fix severe lag
                 spawnParticle(e.clientX, e.clientY, false);
                 lastSpawnTime.current = now;
             }
@@ -74,7 +74,7 @@ const ClickEffects: React.FC = () => {
         const handleTouchMove = (e: TouchEvent) => {
             const touch = e.touches[0];
             const now = Date.now();
-            if (now - lastSpawnTime.current > 10) {
+            if (now - lastSpawnTime.current > 50) {
                 spawnParticle(touch.clientX, touch.clientY, false);
                 lastSpawnTime.current = now;
             }
