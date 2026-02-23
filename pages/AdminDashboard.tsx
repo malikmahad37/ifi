@@ -256,7 +256,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
           {inquiries.length === 0 ? (
             <div className="glass-panel p-20 rounded-[2.5rem] text-center">
               <Inbox className="w-10 h-10 text-theme-base/5 mx-auto mb-4" />
-              <p className="text-theme-base/20 text-xs font-black uppercase tracking-widest">No messages</p>
+              <p className="text-theme-base/20 [.light-theme_&]:text-theme-base/60 text-xs font-black uppercase tracking-widest">No messages</p>
             </div>
           ) : (
             inquiries.map((iq) => (
@@ -264,7 +264,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                 <div className="flex justify-between items-start">
                   <div className="space-y-1">
                     <p className="text-brand-lime font-black text-sm uppercase">{iq.name}</p>
-                    <p className="text-theme-base/30 text-[9px] uppercase font-black tracking-widest">{iq.date}</p>
+                    <p className="text-theme-base/30 [.light-theme_&]:text-theme-base/70 text-[9px] uppercase font-black tracking-widest">{iq.date}</p>
                   </div>
                   <button onClick={() => onDeleteInquiry(iq.id)} className="p-2 text-red-500/20 hover:text-red-500 transition-colors">
                     <Trash2 className="w-4 h-4" />
@@ -289,14 +289,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
             <div className="space-y-6">
               <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div className="relative w-full md:w-[500px]">
-                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-base/20" />
+                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-base/20 [.light-theme_&]:text-theme-base/60" />
                   <input
                     type="text"
                     placeholder="Search inventory..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     style={{ color: '#000000' }} // Force black text for visibility
-                    className="w-full bg-input-bg border border-theme-base/10 rounded-2xl pl-14 pr-6 py-4 text-sm focus:outline-none focus:border-brand-lime/30 placeholder:text-theme-base/30"
+                    className="w-full bg-input-bg border border-theme-base/10 rounded-2xl pl-14 pr-6 py-4 text-sm focus:outline-none focus:border-brand-lime/30 placeholder:text-theme-base/30 [.light-theme_&]:text-theme-base/70"
                   />
                 </div>
                 <button
@@ -312,9 +312,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                 <table className="w-full text-left">
                   <thead>
                     <tr className="border-b border-theme-base/5 bg-theme-base/[0.01]">
-                      <th className="px-8 py-5 text-[9px] font-black uppercase tracking-widest text-theme-base/30">PRODUCT</th>
-                      <th className="px-8 py-5 text-[9px] font-black uppercase tracking-widest text-theme-base/30">ITEMS</th>
-                      <th className="px-8 py-5 text-[9px] font-black uppercase tracking-widest text-theme-base/30 text-right">ACTIONS</th>
+                      <th className="px-8 py-5 text-[9px] font-black uppercase tracking-widest text-theme-base/30 [.light-theme_&]:text-theme-base/70">PRODUCT</th>
+                      <th className="px-8 py-5 text-[9px] font-black uppercase tracking-widest text-theme-base/30 [.light-theme_&]:text-theme-base/70">ITEMS</th>
+                      <th className="px-8 py-5 text-[9px] font-black uppercase tracking-widest text-theme-base/30 [.light-theme_&]:text-theme-base/70 text-right">ACTIONS</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-theme-base/[0.03]">
@@ -337,10 +337,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                               </div>
                             </div>
                           </td>
-                          <td className="px-8 py-4 text-theme-base/20 text-xs font-black">{(cat?.series || []).length} items</td>
+                          <td className="px-8 py-4 text-theme-base/20 [.light-theme_&]:text-theme-base/60 text-xs font-black">{(cat?.series || []).length} items</td>
                           <td className="px-8 py-4 text-right">
                             <div className="flex justify-end gap-2">
-                              <button onClick={() => { setSelectedCategoryId(cat.id); setViewMode('edit-category'); }} className="p-2.5 bg-theme-base/5 rounded-lg text-theme-base/20 hover:text-theme-base"><Edit2 className="w-3.5 h-3.5" /></button>
+                              <button onClick={() => { setSelectedCategoryId(cat.id); setViewMode('edit-category'); }} className="p-2.5 bg-theme-base/5 rounded-lg text-theme-base/20 [.light-theme_&]:text-theme-base/60 hover:text-theme-base"><Edit2 className="w-3.5 h-3.5" /></button>
                               <button onClick={(e) => handleRemoveCategory(e, cat.id)} className="p-2.5 bg-red-500/5 rounded-lg text-red-500/30 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
                             </div>
                           </td>
@@ -362,7 +362,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                         <p className="urdu-text text-brand-text/50 text-base leading-none">{cat.nameUrdu}</p>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-theme-base/20 text-[10px] font-black uppercase">{(cat?.series || []).length} Series</span>
+                        <span className="text-theme-base/20 [.light-theme_&]:text-theme-base/60 text-[10px] font-black uppercase">{(cat?.series || []).length} Series</span>
                         <div className="flex gap-2">
                           <button onClick={() => { setSelectedCategoryId(cat.id); setViewMode('edit-category'); }} className="p-2 bg-theme-base/5 rounded-lg"><Edit2 className="w-4 h-4 text-theme-base/40" /></button>
                           <button onClick={(e) => handleRemoveCategory(e, cat.id)} className="p-2 bg-red-500/5 rounded-lg"><Trash2 className="w-4 h-4 text-red-500/50" /></button>
@@ -382,7 +382,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
           ) : (
             <div className="space-y-8 animate-slide-up">
               <div className="flex items-center justify-between border-b border-theme-base/5 pb-6">
-                <button onClick={() => { setViewMode('list'); setSelectedProductId(null); }} className="flex items-center gap-2 text-theme-base/30 text-[9px] font-black uppercase tracking-widest">
+                <button onClick={() => { setViewMode('list'); setSelectedProductId(null); }} className="flex items-center gap-2 text-theme-base/30 [.light-theme_&]:text-theme-base/70 text-[9px] font-black uppercase tracking-widest">
                   <ArrowLeft className="w-4 h-4" /> BACK TO LIST
                 </button>
                 <button onClick={saveAll} className="bg-brand-lime text-black px-6 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest">SAVE</button>
@@ -394,12 +394,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                     <div key={cat.id} className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                       <div className="space-y-6">
                         <div className="space-y-3">
-                          <label className="text-[9px] font-black text-theme-base/30 uppercase tracking-widest">Name (EN/UR)</label>
+                          <label className="text-[9px] font-black text-theme-base/30 [.light-theme_&]:text-theme-base/70 uppercase tracking-widest">Name (EN/UR)</label>
                           <input value={cat.name} onChange={e => updateCategory(cat.id, 'name', e.target.value)} className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-theme-base font-black focus:border-brand-lime/50 transition-colors" />
                           <input dir="rtl" value={cat.nameUrdu} onChange={e => updateCategory(cat.id, 'nameUrdu', e.target.value)} className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-brand-text urdu-text text-2xl focus:border-brand-lime/50 transition-colors" />
                         </div>
                         <div className="space-y-3">
-                          <label className="text-[9px] font-black text-theme-base/30 uppercase tracking-widest">Cover Image</label>
+                          <label className="text-[9px] font-black text-theme-base/30 [.light-theme_&]:text-theme-base/70 uppercase tracking-widest">Cover Image</label>
                           <div className="aspect-video rounded-2xl overflow-hidden border border-theme-base/10 mb-2">
                             <img src={cat.image} className="w-full h-full object-cover" />
                           </div>
@@ -407,11 +407,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                             type="file"
                             accept="image/*"
                             onChange={(e) => handleImageUpload(e, (base64) => updateCategory(cat.id, 'image', base64))}
-                            className="w-full bg-input-bg border border-theme-base/5 rounded-lg p-3 text-[9px] text-theme-base/30 font-mono file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-lime file:text-brand-dark hover:file:bg-brand-lime/80"
+                            className="w-full bg-input-bg border border-theme-base/5 rounded-lg p-3 text-[9px] text-theme-base/30 [.light-theme_&]:text-theme-base/70 font-mono file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-lime file:text-brand-dark hover:file:bg-brand-lime/80"
                           />
                         </div>
                         <div className="space-y-3">
-                          <label className="text-[9px] font-black text-theme-base/30 uppercase tracking-widest">Description (EN/UR)</label>
+                          <label className="text-[9px] font-black text-theme-base/30 [.light-theme_&]:text-theme-base/70 uppercase tracking-widest">Description (EN/UR)</label>
                           <textarea value={cat.description} onChange={e => updateCategory(cat.id, 'description', e.target.value)} className="w-full h-24 bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-theme-base text-xs font-bold resize-none focus:border-brand-lime/50 transition-colors" placeholder="Category description..." />
                           <textarea dir="rtl" value={cat.descriptionUrdu} onChange={e => updateCategory(cat.id, 'descriptionUrdu', e.target.value)} className="w-full h-24 bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-brand-text urdu-text text-lg resize-none focus:border-brand-lime/50 transition-colors" placeholder="زمرہ کی تفصیل..." />
                         </div>
@@ -419,7 +419,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                       <div className="space-y-6">
                         <div className="space-y-2">
                           <div className="flex justify-between items-center mb-2">
-                            <label className="text-[9px] font-black text-theme-base/30 uppercase tracking-widest">Series List</label>
+                            <label className="text-[9px] font-black text-theme-base/30 [.light-theme_&]:text-theme-base/70 uppercase tracking-widest">Series List</label>
                             <button onClick={() => addSeriesToGroup(cat.id)} className="text-brand-text text-[9px] font-black uppercase hover:underline">+ Add Item</button>
                           </div>
                           <div className="space-y-3">
@@ -433,7 +433,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                                   </div>
                                 </div>
                                 <div className="flex gap-1.5">
-                                  <button onClick={() => { setSelectedProductId(s.id); setViewMode('edit-product'); }} className="p-2 text-theme-base/20 hover:text-theme-base"><Edit2 className="w-3.5 h-3.5" /></button>
+                                  <button onClick={() => { setSelectedProductId(s.id); setViewMode('edit-product'); }} className="p-2 text-theme-base/20 [.light-theme_&]:text-theme-base/60 hover:text-theme-base"><Edit2 className="w-3.5 h-3.5" /></button>
                                   <button onClick={(e) => handleRemoveSeries(e, cat.id, s.id)} className="p-2 text-red-500/20 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
                                 </div>
                               </div>
@@ -452,12 +452,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                     <div key={s.id} className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                       <div className="space-y-6">
                         <div className="space-y-3">
-                          <label className="text-[9px] font-black text-theme-base/30 uppercase tracking-widest">Series Detail</label>
+                          <label className="text-[9px] font-black text-theme-base/30 [.light-theme_&]:text-theme-base/70 uppercase tracking-widest">Series Detail</label>
                           <input value={s.name} onChange={e => updateSeries(selectedCategoryId, s.id, 'name', e.target.value)} className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-theme-base font-black" />
                           <input dir="rtl" value={s.nameUrdu} onChange={e => updateSeries(selectedCategoryId, s.id, 'nameUrdu', e.target.value)} className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-brand-text urdu-text text-2xl" />
                         </div>
                         <div className="space-y-3">
-                          <label className="text-[9px] font-black text-theme-base/30 uppercase tracking-widest">Product Photo</label>
+                          <label className="text-[9px] font-black text-theme-base/30 [.light-theme_&]:text-theme-base/70 uppercase tracking-widest">Product Photo</label>
                           <div className="aspect-square w-full max-w-[250px] mx-auto rounded-3xl overflow-hidden border border-theme-base/10 mb-2">
                             <img src={s.image} className="w-full h-full object-cover" />
                           </div>
@@ -465,17 +465,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                             type="file"
                             accept="image/*"
                             onChange={(e) => handleImageUpload(e, (base64) => updateSeries(selectedCategoryId, s.id, 'image', base64))}
-                            className="w-full bg-input-bg border border-theme-base/5 rounded-lg p-3 text-[9px] text-theme-base/30 font-mono file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-lime file:text-brand-dark hover:file:bg-brand-lime/80"
+                            className="w-full bg-input-bg border border-theme-base/5 rounded-lg p-3 text-[9px] text-theme-base/30 [.light-theme_&]:text-theme-base/70 font-mono file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-lime file:text-brand-dark hover:file:bg-brand-lime/80"
                           />
                         </div>
                       </div>
                       <div className="space-y-6">
                         <div className="space-y-2">
-                          <label className="text-[9px] font-black text-theme-base/30 uppercase tracking-widest">Sizes (Comma separated)</label>
+                          <label className="text-[9px] font-black text-theme-base/30 [.light-theme_&]:text-theme-base/70 uppercase tracking-widest">Sizes (Comma separated)</label>
                           <input value={s.sizes.join(', ')} onChange={e => updateSeries(selectedCategoryId, s.id, 'sizes', e.target.value.split(',').map(v => v.trim()))} className="w-full bg-input-bg border border-theme-base/10 rounded-xl p-4 text-theme-base text-xs font-mono" />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[9px] font-black text-theme-base/30 uppercase tracking-widest">Description</label>
+                          <label className="text-[9px] font-black text-theme-base/30 [.light-theme_&]:text-theme-base/70 uppercase tracking-widest">Description</label>
                           <textarea value={s.description} onChange={e => updateSeries(selectedCategoryId, s.id, 'description', e.target.value)} className="w-full h-24 bg-input-bg border border-theme-base/10 rounded-xl p-4 text-xs text-theme-base resize-none" />
                           <textarea dir="rtl" value={s.descriptionUrdu} onChange={e => updateSeries(selectedCategoryId, s.id, 'descriptionUrdu', e.target.value)} className="w-full h-24 bg-input-bg border border-theme-base/10 rounded-xl p-4 urdu-text text-base text-brand-text/80 resize-none" />
                         </div>
@@ -554,7 +554,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                   <div className="space-y-3">
                     {invoiceItems.map((item, idx) => (
                       <div key={item.id} className="grid grid-cols-12 gap-2 items-center bg-theme-base/5 p-3 rounded-xl border border-theme-base/5">
-                        <div className="col-span-1 text-center text-[9px] text-theme-base/30 font-bold">{idx + 1}</div>
+                        <div className="col-span-1 text-center text-[9px] text-theme-base/30 [.light-theme_&]:text-theme-base/70 font-bold">{idx + 1}</div>
                         <div className="col-span-5">
                           <input
                             list="products-list"
@@ -593,7 +593,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                         </div>
                       </div>
                     ))}
-                    <button onClick={addInvoiceItem} className="w-full py-3 border-2 border-dashed border-theme-base/10 rounded-xl text-[10px] font-black uppercase text-theme-base/30 hover:text-brand-text hover:border-brand-lime/30 transition-all">
+                    <button onClick={addInvoiceItem} className="w-full py-3 border-2 border-dashed border-theme-base/10 rounded-xl text-[10px] font-black uppercase text-theme-base/30 [.light-theme_&]:text-theme-base/70 hover:text-brand-text hover:border-brand-lime/30 transition-all">
                       + Add Line Item
                     </button>
 

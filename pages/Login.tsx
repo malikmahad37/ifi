@@ -75,7 +75,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-input-bg border border-theme-base/10 rounded-2xl px-12 py-4 text-theme-base placeholder:text-theme-base/30 focus:outline-none focus:border-brand-lime transition-all text-sm autofill:bg-input-bg autofill:text-theme-base"
+                  className="w-full bg-input-bg border border-theme-base/10 rounded-2xl px-12 py-4 text-theme-base placeholder:text-theme-base/30 [.light-theme_&]:placeholder:text-theme-base/60 focus:outline-none focus:border-brand-lime transition-all text-sm autofill:bg-input-bg autofill:text-theme-base"
                   placeholder="Enter Username"
                 />
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-base/50" />
@@ -89,7 +89,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-input-bg border border-theme-base/10 rounded-2xl px-12 py-4 text-theme-base placeholder:text-theme-base/30 focus:outline-none focus:border-brand-lime transition-all text-sm autofill:bg-input-bg autofill:text-theme-base"
+                  className="w-full bg-input-bg border border-theme-base/10 rounded-2xl px-12 py-4 text-theme-base placeholder:text-theme-base/30 [.light-theme_&]:placeholder:text-theme-base/60 focus:outline-none focus:border-brand-lime transition-all text-sm autofill:bg-input-bg autofill:text-theme-base"
                   placeholder="••••••••"
                 />
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-base/50" />

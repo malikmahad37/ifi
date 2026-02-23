@@ -51,7 +51,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAdmin, onLogout }) => {
             <div className="border-l border-theme-base/10 pl-2.5">
               <p className="text-[9px] uppercase tracking-[0.3em] text-theme-base font-black leading-none">Ittefaq Fasteners</p>
               <p className="text-[9px] uppercase tracking-[0.3em] text-brand-text font-black leading-none mt-1">Industries</p>
-              <p className="text-[7px] uppercase tracking-[0.4em] text-theme-base/40 font-bold leading-none mt-1">SINCE 1987</p>
+              <p className="text-[7px] uppercase tracking-[0.4em] text-theme-base/40 [.light-theme_&]:text-theme-base/70 font-bold leading-none mt-1">SINCE 1987</p>
             </div>
           </Link>
 
@@ -63,7 +63,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAdmin, onLogout }) => {
                   to={link.path}
                   className={`relative px-1 py-1 text-[10px] font-black tracking-[0.3em] transition-all uppercase ${isActive(link.path)
                     ? 'text-brand-lime border-b border-brand-lime'
-                    : 'text-theme-base/40 hover:text-theme-base'
+                    : 'text-theme-base/40 [.light-theme_&]:text-theme-base/70 hover:text-theme-base'
                     }`}
                 >
                   {link.name}
@@ -75,7 +75,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAdmin, onLogout }) => {
                 {!isAdmin ? (
                   <Link
                     to="/login"
-                    className="p-2 text-theme-base/20 hover:text-brand-lime hover:bg-theme-base/5 rounded-full transition-all"
+                    className="p-2 text-theme-base/20 [.light-theme_&]:text-theme-base/60 hover:text-brand-lime hover:bg-theme-base/5 rounded-full transition-all"
                     title="Admin Access"
                   >
                     <Lock className="w-4 h-4" />
@@ -105,13 +105,13 @@ const Navbar: React.FC<NavbarProps> = ({ isAdmin, onLogout }) => {
           <div className="md:hidden flex items-center gap-3">
             <ThemeToggle />
             {!isAdmin && (
-              <Link to="/login" className="p-2 text-theme-base/20 hover:text-theme-base transition-colors">
+              <Link to="/login" className="p-2 text-theme-base/20 [.light-theme_&]:text-theme-base/60 hover:text-theme-base transition-colors">
                 <Lock className="w-4 h-4" />
               </Link>
             )}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-lg text-theme-base/50 hover:text-brand-lime focus:outline-none transition-colors"
+              className="inline-flex items-center justify-center p-2 rounded-lg text-theme-base/50 [.light-theme_&]:text-theme-base/80 hover:text-brand-lime focus:outline-none transition-colors"
             >
               {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -134,7 +134,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAdmin, onLogout }) => {
                   key={link.name}
                   to={link.path}
                   onClick={() => setIsOpen(false)}
-                  className={`block px-4 py-4 text-[11px] font-black tracking-[0.3em] uppercase border-b border-theme-base/5 ${isActive(link.path) ? 'text-brand-lime font-bold' : 'text-theme-base/40'
+                  className={`block px-4 py-4 text-[11px] font-black tracking-[0.3em] uppercase border-b border-theme-base/5 ${isActive(link.path) ? 'text-brand-lime font-bold' : 'text-theme-base/40 [.light-theme_&]:text-theme-base/80'
                     }`}
                 >
                   {link.name}

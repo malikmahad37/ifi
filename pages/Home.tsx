@@ -181,7 +181,7 @@ const Home: React.FC<HomeProps> = ({ categories, contact }) => {
                 <h4 className="text-lg md:text-xl font-black text-theme-base uppercase tracking-widest leading-none group-hover:text-brand-lime transition-colors">{item.title}</h4>
                 <p className="urdu-text text-brand-lime text-2xl font-bold leading-none">{item.urdu}</p>
               </div>
-              <p className="text-theme-base/30 text-xs md:text-sm leading-relaxed max-w-[250px] mx-auto">
+              <p className="text-theme-base/30 [.light-theme_&]:text-theme-base/70 text-xs md:text-sm leading-relaxed max-w-[250px] mx-auto">
                 {item.desc}
               </p>
             </motion.div>

@@ -61,9 +61,9 @@ const Contact: React.FC<ContactProps> = ({ contact, onAddInquiry }) => {
           transition={{ duration: 0.8 }}
           className="text-center mb-10 space-y-3"
         >
-          <p className="text-brand-text text-[10px] font-black tracking-[0.5em] uppercase opacity-60">Connect With Us</p>
+          <p className="text-brand-text text-[10px] font-black tracking-[0.5em] uppercase opacity-60 [.light-theme_&]:opacity-80">Connect With Us</p>
           <h1 className="text-4xl md:text-5xl font-black text-theme-base tracking-tighter uppercase">GET IN TOUCH</h1>
-          <p className="urdu-text text-theme-base/30 text-xl md:text-2xl font-bold">رابطہ کریں</p>
+          <p className="urdu-text text-theme-base/30 [.light-theme_&]:text-theme-base/60 text-xl md:text-2xl font-bold">رابطہ کریں</p>
         </motion.div>
 
         <motion.div
@@ -89,7 +89,7 @@ const Contact: React.FC<ContactProps> = ({ contact, onAddInquiry }) => {
                     <Phone className="w-7 h-7" />
                   </motion.div>
                   <div className="space-y-1">
-                    <p className="text-theme-base/20 text-[9px] uppercase font-black tracking-widest">Call Center</p>
+                    <p className="text-theme-base/20 [.light-theme_&]:text-theme-base/60 text-[9px] uppercase font-black tracking-widest">Call Center</p>
                     <p className="text-theme-base text-xl font-black tracking-tight group-hover:text-brand-lime transition-colors">{contact.phone}</p>
                   </div>
                 </motion.div>
@@ -105,7 +105,7 @@ const Contact: React.FC<ContactProps> = ({ contact, onAddInquiry }) => {
                     <MapPin className="w-7 h-7" />
                   </motion.div>
                   <div className="space-y-1">
-                    <p className="text-theme-base/20 text-[9px] uppercase font-black tracking-widest">Our Presence</p>
+                    <p className="text-theme-base/20 [.light-theme_&]:text-theme-base/60 text-[9px] uppercase font-black tracking-widest">Our Presence</p>
                     <p className="text-theme-base text-lg font-bold leading-tight group-hover:text-brand-lime transition-colors">{contact.address}</p>
                   </div>
                 </motion.div>
@@ -130,7 +130,7 @@ const Contact: React.FC<ContactProps> = ({ contact, onAddInquiry }) => {
             ) : (
               <form className="space-y-6 relative z-10" onSubmit={handleSubmit}>
                 <div className="space-y-2">
-                  <label className="text-[9px] uppercase font-black tracking-widest text-theme-base/30 ml-1">Your Full Name</label>
+                  <label className="text-[9px] uppercase font-black tracking-widest text-theme-base/30 [.light-theme_&]:text-theme-base/70 ml-1">Your Full Name</label>
                   <div className="relative">
                     <input
                       type="text"
@@ -144,7 +144,7 @@ const Contact: React.FC<ContactProps> = ({ contact, onAddInquiry }) => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[9px] uppercase font-black tracking-widest text-theme-base/30 ml-1">Your Phone Number</label>
+                  <label className="text-[9px] uppercase font-black tracking-widest text-theme-base/30 [.light-theme_&]:text-theme-base/70 ml-1">Your Phone Number</label>
                   <div className="relative">
                     <input
                       type="tel"
@@ -158,7 +158,7 @@ const Contact: React.FC<ContactProps> = ({ contact, onAddInquiry }) => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[9px] uppercase font-black tracking-widest text-theme-base/30 ml-1">Order / Inquiry Details</label>
+                  <label className="text-[9px] uppercase font-black tracking-widest text-theme-base/30 [.light-theme_&]:text-theme-base/70 ml-1">Order / Inquiry Details</label>
                   <textarea
                     rows={4}
                     required
@@ -176,7 +176,7 @@ const Contact: React.FC<ContactProps> = ({ contact, onAddInquiry }) => {
                 >
                   Send Inquiry Now
                 </motion.button>
-                <p className="urdu-text text-theme-base/20 text-center text-base mt-6">ہم آپ سے جلد ہی رابطہ کریں گے۔</p>
+                <p className="urdu-text text-theme-base/20 [.light-theme_&]:text-theme-base/60 text-center text-base mt-6">ہم آپ سے جلد ہی رابطہ کریں گے۔</p>
               </form>
             )}
           </motion.div>
