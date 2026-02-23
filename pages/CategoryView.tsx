@@ -57,22 +57,22 @@ const CategoryView: React.FC<CategoryViewProps> = ({ categories, contact }) => {
           transition={{ duration: 0.8 }}
           src={category.image}
           alt={category.name}
-          className="absolute inset-0 w-full h-full object-cover brightness-[0.3] [.light-theme_&]:brightness-[0.85]"
+          className="absolute inset-0 w-full h-full object-cover brightness-[0.4]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/30 to-transparent [.light-theme_&]:from-white/95 [.light-theme_&]:via-white/50"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
         <div className="relative max-w-7xl mx-auto px-4 w-full pb-6 md:pb-10 z-10">
-          <Link to="/products" className="flex items-center gap-2 text-brand-lime [.light-theme_&]:text-brand-text font-black uppercase tracking-[0.3em] text-[8px] md:text-[10px] mb-4 opacity-60 hover:opacity-100 transition-all group">
-            <ChevronLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" /> BACK TO CATALOG
+          <Link to="/products" className="flex items-center gap-2 text-brand-lime font-black uppercase tracking-[0.3em] text-[8px] md:text-[10px] mb-4 opacity-100 transition-all group drop-shadow-md">
+            <ChevronLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform drop-shadow" /> BACK TO CATALOG
           </Link>
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5, ease: "easeOut" }}
-            className="space-y-2"
+            className="space-y-2 drop-shadow-lg"
           >
-            <p className="text-brand-lime [.light-theme_&]:text-brand-text text-[9px] md:text-[11px] font-black tracking-[0.5em] uppercase opacity-80">Industrial Category</p>
-            <h1 className="text-3xl md:text-5xl font-black text-theme-base [.light-theme_&]:text-black tracking-tighter uppercase leading-none drop-shadow-xl">{category.name}</h1>
-            <p className="urdu-text text-brand-lime/90 [.light-theme_&]:text-brand-text/90 text-xl md:text-3xl font-bold leading-none mt-2">{category.nameUrdu}</p>
+            <p className="text-brand-lime text-[9px] md:text-[11px] font-black tracking-[0.5em] uppercase opacity-90 drop-shadow">Industrial Category</p>
+            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase leading-none drop-shadow-xl">{category.name}</h1>
+            <p className="urdu-text text-brand-lime text-xl md:text-3xl font-bold leading-none mt-2 drop-shadow-md">{category.nameUrdu}</p>
           </motion.div>
         </div>
       </div>
@@ -96,19 +96,18 @@ const CategoryView: React.FC<CategoryViewProps> = ({ categories, contact }) => {
                 className="group glass-panel rounded-2xl md:rounded-3xl overflow-hidden border border-theme-base/5 hover:border-brand-lime/30 transition-all hover:shadow-xl hover:shadow-brand-lime/5 flex flex-col [.light-theme_&]:bg-white/80"
               >
                 {/* Image Area */}
-                <div className="relative aspect-square overflow-hidden bg-theme-base/5 [.light-theme_&]:bg-white">
+                <div className="relative aspect-square overflow-hidden bg-black flex-shrink-0">
                   <motion.img
                     src={series.image}
                     alt={series.name}
-                    className="w-full h-full object-cover [.light-theme_&]:brightness-95"
+                    className="w-full h-full object-cover brightness-[0.8]"
                     whileHover={{ scale: 1.1 }}
                     transition={{ duration: 0.4 }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 [.light-theme_&]:opacity-30"></div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-transparent [.light-theme_&]:from-white/90 [.light-theme_&]:via-white/10 opacity-0 [.light-theme_&]:opacity-100"></div>
-                  <div className="absolute bottom-3 left-3 right-3 z-10">
-                    <h3 className="text-theme-base [.light-theme_&]:text-black font-black text-sm md:text-base uppercase tracking-tight leading-tight line-clamp-2 drop-shadow-md">{series.name}</h3>
-                    <p className="urdu-text text-brand-lime [.light-theme_&]:text-brand-text text-xs md:text-sm font-bold mt-0.5">{series.nameUrdu}</p>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90"></div>
+                  <div className="absolute bottom-3 left-3 right-3 z-10 drop-shadow-lg">
+                    <h3 className="text-white font-black text-sm md:text-base uppercase tracking-tight leading-tight line-clamp-2 drop-shadow-md">{series.name}</h3>
+                    <p className="urdu-text text-brand-lime text-xs md:text-sm font-bold mt-0.5 drop-shadow">{series.nameUrdu}</p>
                   </div>
                 </div>
 
