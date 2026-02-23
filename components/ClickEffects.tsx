@@ -60,39 +60,19 @@ const ClickEffects: React.FC = () => {
             }, 600);
         };
 
-        const handleMouseMove = (e: MouseEvent) => {
-            const now = Date.now();
-            if (now - lastSpawnTime.current > 50) { // Throttle: increased to 50ms to fix severe lag
-                spawnParticle(e.clientX, e.clientY, false);
-                lastSpawnTime.current = now;
-            }
-        };
-
         const handleClick = (e: MouseEvent) => spawnParticle(e.clientX, e.clientY, true);
 
         // Touch handling
-        const handleTouchMove = (e: TouchEvent) => {
-            const touch = e.touches[0];
-            const now = Date.now();
-            if (now - lastSpawnTime.current > 50) {
-                spawnParticle(touch.clientX, touch.clientY, false);
-                lastSpawnTime.current = now;
-            }
-        };
         const handleTouchStart = (e: TouchEvent) => {
             const touch = e.touches[0];
             spawnParticle(touch.clientX, touch.clientY, true);
         };
 
-        window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('click', handleClick);
-        window.addEventListener('touchmove', handleTouchMove);
         window.addEventListener('touchstart', handleTouchStart);
 
         return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('click', handleClick);
-            window.removeEventListener('touchmove', handleTouchMove);
             window.removeEventListener('touchstart', handleTouchStart);
         };
     }, [theme]); // Re-bind if theme changes to ensure new particles get correct color immediately
