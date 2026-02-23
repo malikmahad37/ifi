@@ -49,7 +49,7 @@ const ProductList: React.FC<ProductListProps> = ({ categories }) => {
           <div className="flex flex-col md:flex-row justify-between items-end gap-6">
             <div>
               <h1 className="text-3xl md:text-5xl font-black text-theme-base leading-none uppercase tracking-tighter">
-                COMPLETE<br /><span className="text-theme-base/20">INDUSTRIAL</span> CATALOG
+                COMPLETE<br /><span className="text-theme-base/20 [.light-theme_&]:text-theme-base/40">INDUSTRIAL</span> CATALOG
               </h1>
               <motion.div
                 initial={{ width: 0 }}
