@@ -178,6 +178,30 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
     amount: number;
   }
 
+  interface SavedInvoice {
+    id: string;
+    date: string;
+    customer: { name: string; phone: string; address: string };
+    items: InvoiceItem[];
+    discount: number;
+    tax: number;
+    notes: string;
+    grandTotal: number;
+    timestamp: number;
+  }
+
+  const [savedInvoices, setSavedInvoices] = useState<SavedInvoice[]>(() => {
+    try {
+      const saved = localStorage.getItem('ifi_saved_invoices');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+  const [showInvoiceHistory, setShowInvoiceHistory] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('ifi_saved_invoices', JSON.stringify(savedInvoices));
+  }, [savedInvoices]);
+
   const [invoiceCustomer, setInvoiceCustomer] = useState({ name: '', phone: '', address: '' });
   const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
   const [invoiceDiscount, setInvoiceDiscount] = useState<number>(0);
@@ -227,6 +251,44 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
     const total = sub + tax - invoiceDiscount;
     return { subTotal: sub, taxAmount: tax, discountAmount: invoiceDiscount, grandTotal: total };
   }, [invoiceItems, invoiceTax, invoiceDiscount]);
+
+  const handleSaveInvoice = () => {
+    if (!invoiceCustomer.name && invoiceItems.length === 1 && !invoiceItems[0].amount) {
+      alert("Cannot save an empty invoice. Please enter at least a customer name or an item.");
+      return;
+    }
+    const newInvoice: SavedInvoice = {
+      id: Date.now().toString(),
+      date: invoiceDate,
+      customer: { ...invoiceCustomer },
+      items: invoiceItems.map(item => ({ ...item })),
+      discount: invoiceDiscount,
+      tax: invoiceTax,
+      notes: invoiceNotes,
+      grandTotal: grandTotal,
+      timestamp: Date.now()
+    };
+    setSavedInvoices(prev => [newInvoice, ...prev]);
+    alert("SUCCESS: Invoice saved locally to the browser's memory!");
+  };
+
+  const handleLoadInvoice = (inv: SavedInvoice) => {
+    if (window.confirm("Loading this invoice will overwrite your current unsaved changes. Continue?")) {
+      setInvoiceCustomer(inv.customer);
+      setInvoiceDate(inv.date);
+      setInvoiceItems(inv.items);
+      setInvoiceDiscount(inv.discount);
+      setInvoiceTax(inv.tax);
+      setInvoiceNotes(inv.notes);
+      setShowInvoiceHistory(false);
+    }
+  };
+
+  const handleDeleteSavedInvoice = (invId: string) => {
+    if (window.confirm("Permanently delete this saved invoice history?")) {
+      setSavedInvoices(prev => prev.filter(i => i.id !== invId));
+    }
+  };
 
   const handlePrintInvoice = () => {
     window.print();
@@ -527,147 +589,206 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
           {/* Editor View */}
           <div className="space-y-8 print:hidden">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <h2 className="text-xl font-black text-theme-base/40 uppercase tracking-widest">Invoice Generator</h2>
-              <div className="flex gap-4">
-                <input
-                  type="date"
-                  value={invoiceDate}
-                  onChange={e => setInvoiceDate(e.target.value)}
-                  className="bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors"
-                />
-                <button onClick={handlePrintInvoice} className="bg-brand-lime text-black px-8 py-3.5 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-brand-lime/10 flex items-center gap-2">
-                  <FileText className="w-4 h-4" /> GENERATE & PRINT
+              <div className="flex items-center gap-4">
+                <h2 className="text-xl font-black text-theme-base/40 uppercase tracking-widest">
+                  {showInvoiceHistory ? 'Invoice History' : 'Invoice Generator'}
+                </h2>
+                <button
+                  onClick={() => setShowInvoiceHistory(!showInvoiceHistory)}
+                  className="bg-theme-base/5 hover:bg-theme-base/10 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest text-theme-base/60 [.light-theme_&]:text-theme-base/80 transition-colors"
+                >
+                  {showInvoiceHistory ? 'Back to Generator' : `View History (${savedInvoices.length})`}
                 </button>
               </div>
+
+              {!showInvoiceHistory && (
+                <div className="flex flex-wrap gap-4">
+                  <input
+                    type="date"
+                    value={invoiceDate}
+                    onChange={e => setInvoiceDate(e.target.value)}
+                    className="bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors"
+                  />
+                  <button onClick={handleSaveInvoice} className="bg-theme-base/5 hover:bg-theme-base/10 text-theme-base px-6 py-3.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 border border-theme-base/10 transition-colors">
+                    <Save className="w-4 h-4" /> SAVE RECORD
+                  </button>
+                  <button onClick={handlePrintInvoice} className="bg-brand-lime text-black px-8 py-3.5 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-brand-lime/10 flex items-center gap-2">
+                    <FileText className="w-4 h-4" /> GENERATE & PRINT
+                  </button>
+                </div>
+              )}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Customer Info */}
-              <div className="lg:col-span-1 space-y-6">
-                <div className="glass-panel p-6 rounded-3xl space-y-4 border border-theme-base/10 bg-theme-base/[0.03] shadow-sm">
-                  <h3 className="text-[10px] font-black text-theme-base uppercase tracking-widest border-b border-theme-base/5 pb-2">Customer Details</h3>
-                  <div className="space-y-3">
-                    <input
-                      placeholder="Customer Name"
-                      value={invoiceCustomer.name}
-                      onChange={e => setInvoiceCustomer({ ...invoiceCustomer, name: e.target.value })}
-                      className="w-full bg-white/5 [.light-theme_&]:bg-white border border-theme-base/20 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors shadow-inner"
-                    />
-                    <input
-                      placeholder="Phone Number"
-                      value={invoiceCustomer.phone}
-                      onChange={e => setInvoiceCustomer({ ...invoiceCustomer, phone: e.target.value })}
-                      className="w-full bg-white/5 [.light-theme_&]:bg-white border border-theme-base/20 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors shadow-inner"
-                    />
-                    <textarea
-                      placeholder="Address"
-                      value={invoiceCustomer.address}
-                      onChange={e => setInvoiceCustomer({ ...invoiceCustomer, address: e.target.value })}
-                      className="w-full bg-white/5 [.light-theme_&]:bg-white border border-theme-base/20 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors resize-none h-20 shadow-inner"
-                    />
+            {showInvoiceHistory ? (
+              <div className="glass-panel p-6 md:p-10 rounded-3xl border border-theme-base/10 bg-theme-base/[0.03]">
+                {savedInvoices.length === 0 ? (
+                  <div className="text-center py-20">
+                    <FileText className="w-12 h-12 text-theme-base/10 mx-auto mb-4" />
+                    <p className="text-theme-base/30 text-xs font-black uppercase tracking-widest">No saved invoices found in history.</p>
                   </div>
-                </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="border-b border-theme-base/5 text-[9px] font-black uppercase tracking-widest text-theme-base/30 [.light-theme_&]:text-theme-base/70">
+                          <th className="py-4 pr-6">Date</th>
+                          <th className="py-4 pr-6">Customer</th>
+                          <th className="py-4 pr-6">Amount</th>
+                          <th className="py-4 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-theme-base/[0.03]">
+                        {savedInvoices.map(inv => (
+                          <tr key={inv.id} className="hover:bg-theme-base/[0.01] transition-colors">
+                            <td className="py-4 pr-6 text-xs text-theme-base/60 font-mono">{new Date(inv.date).toLocaleDateString()}</td>
+                            <td className="py-4 pr-6 font-bold text-sm text-theme-base">{inv.customer.name || 'Walk-in Customer'}</td>
+                            <td className="py-4 pr-6 font-mono text-xs text-brand-lime [.light-theme_&]:text-brand-text font-black">Rs. {inv.grandTotal.toLocaleString()}</td>
+                            <td className="py-4 text-right">
+                              <div className="flex justify-end gap-2">
+                                <button onClick={() => handleLoadInvoice(inv)} className="p-2.5 bg-theme-base/5 rounded-lg text-theme-base/60 hover:text-theme-base font-black text-[9px] uppercase tracking-widest transition-colors flex items-center gap-2">
+                                  OPEN
+                                </button>
+                                <button onClick={() => handleDeleteSavedInvoice(inv.id)} className="p-2.5 bg-red-500/5 rounded-lg text-red-500/40 hover:text-red-500 transition-colors">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
-
-              {/* Items List */}
-              <div className="lg:col-span-2 space-y-6">
-                <div className="glass-panel p-6 rounded-3xl space-y-4 border border-theme-base/10 bg-theme-base/[0.03] shadow-sm">
-                  <div className="flex justify-between items-center border-b border-theme-base/5 pb-2">
-                    <h3 className="text-[10px] font-black text-theme-base uppercase tracking-widest">Order Items</h3>
-                    <div className="text-[10px] font-black text-brand-text uppercase tracking-widest">
-                      Total: <span className="text-theme-base text-sm ml-2">Rs. {grandTotal.toLocaleString()}</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    {invoiceItems.map((item, idx) => (
-                      <div key={item.id} className="grid grid-cols-12 gap-2 items-center bg-theme-base/5 p-3 rounded-xl border border-theme-base/5">
-                        <div className="col-span-1 text-center text-[9px] text-theme-base/30 [.light-theme_&]:text-theme-base/70 font-bold">{idx + 1}</div>
-                        <div className="col-span-5">
-                          <input
-                            list="products-list"
-                            placeholder="Product Description"
-                            value={item.description}
-                            onChange={e => updateInvoiceItem(item.id, 'description', e.target.value)}
-                            className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors focus:ring-0"
-                          />
-                          <datalist id="products-list">
-                            {allProducts.map((p, i) => <option key={i} value={p.value}>{p.label}</option>)}
-                          </datalist>
-                        </div>
-                        <div className="col-span-2">
-                          <input
-                            type="number"
-                            placeholder="Weight (kg)"
-                            value={item.weight}
-                            onChange={e => updateInvoiceItem(item.id, 'weight', e.target.value)}
-                            className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-mono focus:border-brand-lime/50 transition-colors focus:ring-0 text-center"
-                          />
-                        </div>
-                        <div className="col-span-2">
-                          <input
-                            type="number"
-                            placeholder="Rate"
-                            value={item.rate}
-                            onChange={e => updateInvoiceItem(item.id, 'rate', e.target.value)}
-                            className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-mono focus:border-brand-lime/50 transition-colors focus:ring-0 text-center"
-                          />
-                        </div>
-                        <div className="col-span-1 text-right text-[10px] font-mono text-theme-base/60">
-                          {item.amount.toLocaleString()}
-                        </div>
-                        <div className="col-span-1 text-center">
-                          <button onClick={() => removeInvoiceItem(item.id)} className="text-red-500/40 hover:text-red-500 transition-colors"><X className="w-3 h-3" /></button>
-                        </div>
-                      </div>
-                    ))}
-                    <button onClick={addInvoiceItem} className="w-full py-3 border-2 border-dashed border-theme-base/10 rounded-xl text-[10px] font-black uppercase text-theme-base/30 [.light-theme_&]:text-theme-base/70 hover:text-brand-text hover:border-brand-lime/30 transition-all">
-                      + Add Line Item
-                    </button>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-theme-base/5">
-                      <div className="space-y-4">
-                        <label className="text-[9px] font-black text-theme-base uppercase tracking-widest">Terms & Notes</label>
-                        <textarea
-                          value={invoiceNotes}
-                          onChange={e => setInvoiceNotes(e.target.value)}
-                          className="w-full h-24 bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-xl p-4 text-xs text-theme-base resize-none"
-                          placeholder="Payment terms, delivery notes, etc."
-                        />
-                      </div>
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                          <label className="text-[9px] font-black text-theme-base uppercase tracking-widest">Subtotal</label>
-                          <span className="text-sm font-mono text-theme-base">Rs. {subTotal.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between items-center gap-4">
-                          <label className="text-[9px] font-black text-theme-base uppercase tracking-widest whitespace-nowrap">Discount (Amount)</label>
-                          <input
-                            type="number"
-                            value={invoiceDiscount}
-                            onChange={e => setInvoiceDiscount(parseFloat(e.target.value) || 0)}
-                            className="w-24 bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-lg px-2 py-1 text-right text-xs font-mono"
-                          />
-                        </div>
-                        <div className="flex justify-between items-center gap-4">
-                          <label className="text-[9px] font-black text-theme-base uppercase tracking-widest whitespace-nowrap">Tax (%)</label>
-                          <input
-                            type="number"
-                            value={invoiceTax}
-                            onChange={e => setInvoiceTax(parseFloat(e.target.value) || 0)}
-                            className="w-24 bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-lg px-2 py-1 text-right text-xs font-mono"
-                          />
-                        </div>
-                        <div className="flex justify-between items-center border-t border-theme-base/10 pt-4">
-                          <label className="text-xs font-black text-brand-text uppercase tracking-widest">Grand Total</label>
-                          <span className="text-lg font-black font-mono text-theme-base">Rs. {grandTotal.toLocaleString()}</span>
-                        </div>
-                      </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Customer Info */}
+                <div className="lg:col-span-1 space-y-6">
+                  <div className="glass-panel p-6 rounded-3xl space-y-4 border border-theme-base/10 bg-theme-base/[0.03] shadow-sm">
+                    <h3 className="text-[10px] font-black text-theme-base uppercase tracking-widest border-b border-theme-base/5 pb-2">Customer Details</h3>
+                    <div className="space-y-3">
+                      <input
+                        placeholder="Customer Name"
+                        value={invoiceCustomer.name}
+                        onChange={e => setInvoiceCustomer({ ...invoiceCustomer, name: e.target.value })}
+                        className="w-full bg-white/5 [.light-theme_&]:bg-white border border-theme-base/20 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors shadow-inner"
+                      />
+                      <input
+                        placeholder="Phone Number"
+                        value={invoiceCustomer.phone}
+                        onChange={e => setInvoiceCustomer({ ...invoiceCustomer, phone: e.target.value })}
+                        className="w-full bg-white/5 [.light-theme_&]:bg-white border border-theme-base/20 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors shadow-inner"
+                      />
+                      <textarea
+                        placeholder="Address"
+                        value={invoiceCustomer.address}
+                        onChange={e => setInvoiceCustomer({ ...invoiceCustomer, address: e.target.value })}
+                        className="w-full bg-white/5 [.light-theme_&]:bg-white border border-theme-base/20 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors resize-none h-20 shadow-inner"
+                      />
                     </div>
                   </div>
                 </div>
+
+                {/* Items List */}
+                <div className="lg:col-span-2 space-y-6">
+                  <div className="glass-panel p-6 rounded-3xl space-y-4 border border-theme-base/10 bg-theme-base/[0.03] shadow-sm">
+                    <div className="flex justify-between items-center border-b border-theme-base/5 pb-2">
+                      <h3 className="text-[10px] font-black text-theme-base uppercase tracking-widest">Order Items</h3>
+                      <div className="text-[10px] font-black text-brand-text uppercase tracking-widest">
+                        Total: <span className="text-theme-base text-sm ml-2">Rs. {grandTotal.toLocaleString()}</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      {invoiceItems.map((item, idx) => (
+                        <div key={item.id} className="grid grid-cols-12 gap-2 items-center bg-theme-base/5 p-3 rounded-xl border border-theme-base/5">
+                          <div className="col-span-1 text-center text-[9px] text-theme-base/30 [.light-theme_&]:text-theme-base/70 font-bold">{idx + 1}</div>
+                          <div className="col-span-5">
+                            <input
+                              list="products-list"
+                              placeholder="Product Description"
+                              value={item.description}
+                              onChange={e => updateInvoiceItem(item.id, 'description', e.target.value)}
+                              className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors focus:ring-0"
+                            />
+                            <datalist id="products-list">
+                              {allProducts.map((p, i) => <option key={i} value={p.value}>{p.label}</option>)}
+                            </datalist>
+                          </div>
+                          <div className="col-span-2">
+                            <input
+                              type="number"
+                              placeholder="Weight (kg)"
+                              value={item.weight}
+                              onChange={e => updateInvoiceItem(item.id, 'weight', e.target.value)}
+                              className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-mono focus:border-brand-lime/50 transition-colors focus:ring-0 text-center"
+                            />
+                          </div>
+                          <div className="col-span-2">
+                            <input
+                              type="number"
+                              placeholder="Rate"
+                              value={item.rate}
+                              onChange={e => updateInvoiceItem(item.id, 'rate', e.target.value)}
+                              className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-mono focus:border-brand-lime/50 transition-colors focus:ring-0 text-center"
+                            />
+                          </div>
+                          <div className="col-span-1 text-right text-[10px] font-mono text-theme-base/60">
+                            {item.amount.toLocaleString()}
+                          </div>
+                          <div className="col-span-1 text-center">
+                            <button onClick={() => removeInvoiceItem(item.id)} className="text-red-500/40 hover:text-red-500 transition-colors"><X className="w-3 h-3" /></button>
+                          </div>
+                        </div>
+                      ))}
+                      <button onClick={addInvoiceItem} className="w-full py-3 border-2 border-dashed border-theme-base/10 rounded-xl text-[10px] font-black uppercase text-theme-base/30 [.light-theme_&]:text-theme-base/70 hover:text-brand-text hover:border-brand-lime/30 transition-all">
+                        + Add Line Item
+                      </button>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-theme-base/5">
+                        <div className="space-y-4">
+                          <label className="text-[9px] font-black text-theme-base uppercase tracking-widest">Terms & Notes</label>
+                          <textarea
+                            value={invoiceNotes}
+                            onChange={e => setInvoiceNotes(e.target.value)}
+                            className="w-full h-24 bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-xl p-4 text-xs text-theme-base resize-none"
+                            placeholder="Payment terms, delivery notes, etc."
+                          />
+                        </div>
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center">
+                            <label className="text-[9px] font-black text-theme-base uppercase tracking-widest">Subtotal</label>
+                            <span className="text-sm font-mono text-theme-base">Rs. {subTotal.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center gap-4">
+                            <label className="text-[9px] font-black text-theme-base uppercase tracking-widest whitespace-nowrap">Discount (Amount)</label>
+                            <input
+                              type="number"
+                              value={invoiceDiscount}
+                              onChange={e => setInvoiceDiscount(parseFloat(e.target.value) || 0)}
+                              className="w-24 bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-lg px-2 py-1 text-right text-xs font-mono"
+                            />
+                          </div>
+                          <div className="flex justify-between items-center gap-4">
+                            <label className="text-[9px] font-black text-theme-base uppercase tracking-widest whitespace-nowrap">Tax (%)</label>
+                            <input
+                              type="number"
+                              value={invoiceTax}
+                              onChange={e => setInvoiceTax(parseFloat(e.target.value) || 0)}
+                              className="w-24 bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-lg px-2 py-1 text-right text-xs font-mono"
+                            />
+                          </div>
+                          <div className="flex justify-between items-center border-t border-theme-base/10 pt-4">
+                            <label className="text-xs font-black text-brand-text uppercase tracking-widest">Grand Total</label>
+                            <span className="text-lg font-black font-mono text-theme-base">Rs. {grandTotal.toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Printable Invoice (Hidden on Screen) */}
