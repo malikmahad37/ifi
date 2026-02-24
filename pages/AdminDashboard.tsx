@@ -1,7 +1,7 @@
-
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Save, X, Phone, Mail, MapPin, Globe, Package, Info, Image as ImageIcon, Type, LayoutDashboard, Inbox, Calendar, MessageSquare, Search, Edit2, CheckCircle, Star, ArrowLeft, MessageCircle, FileText } from 'lucide-react';
+import { Plus, Check, Save, Upload, Info, MessageSquare, Trash2, Edit2, Archive, Package, LayoutDashboard, Inbox, Mail, FileText, X, ArrowLeft, Search, History } from 'lucide-react';
+import { initialCategories, contactInfo } from '../data/products';
 import { Category, ProductSeries, ContactInfo, Inquiry } from '../types';
 import { migrateCategories } from '../lib/firebase';
 import { INITIAL_CATEGORIES } from '../constants';
@@ -197,6 +197,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
     } catch { return []; }
   });
   const [showInvoiceHistory, setShowInvoiceHistory] = useState(false);
+  const [historySearchQuery, setHistorySearchQuery] = useState('');
+
+  const filteredHistory = useMemo(() => {
+    if (!historySearchQuery) return savedInvoices;
+    const lowerQuery = historySearchQuery.toLowerCase();
+    return savedInvoices.filter(inv =>
+      (inv.customer.name || '').toLowerCase().includes(lowerQuery) ||
+      inv.id.includes(lowerQuery)
+    );
+  }, [savedInvoices, historySearchQuery]);
 
   useEffect(() => {
     localStorage.setItem('ifi_saved_invoices', JSON.stringify(savedInvoices));
@@ -595,9 +605,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                 </h2>
                 <button
                   onClick={() => setShowInvoiceHistory(!showInvoiceHistory)}
-                  className="bg-theme-base/5 hover:bg-theme-base/10 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest text-theme-base/60 [.light-theme_&]:text-theme-base/80 transition-colors"
+                  className="bg-theme-base/5 hover:bg-brand-lime hover:text-black px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-theme-base/60 [.light-theme_&]:text-theme-base/80 transition-all flex items-center gap-2"
                 >
-                  {showInvoiceHistory ? 'Back to Generator' : `View History (${savedInvoices.length})`}
+                  {showInvoiceHistory ? <><Plus className="w-4 h-4" /> New Invoice</> : <><History className="w-4 h-4" /> View History</>}
                 </button>
               </div>
 
@@ -620,43 +630,67 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
             </div>
 
             {showInvoiceHistory ? (
-              <div className="glass-panel p-6 md:p-10 rounded-3xl border border-theme-base/10 bg-theme-base/[0.03]">
-                {savedInvoices.length === 0 ? (
-                  <div className="text-center py-20">
-                    <FileText className="w-12 h-12 text-theme-base/10 mx-auto mb-4" />
-                    <p className="text-theme-base/30 text-xs font-black uppercase tracking-widest">No saved invoices found in history.</p>
-                  </div>
+              <div className="space-y-8 animate-fade-in">
+                <div className="relative w-full md:w-[400px]">
+                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-base/20 [.light-theme_&]:text-theme-base/60" />
+                  <input
+                    type="text"
+                    placeholder="Search by customer name or ID..."
+                    value={historySearchQuery}
+                    onChange={(e) => setHistorySearchQuery(e.target.value)}
+                    className="w-full bg-input-bg border border-theme-base/10 rounded-2xl pl-14 pr-6 py-4 text-sm text-theme-base font-bold focus:outline-none focus:border-brand-lime/30 placeholder:text-theme-base/30 [.light-theme_&]:placeholder:text-theme-base/70 shadow-sm transition-all"
+                  />
+                </div>
+
+                {filteredHistory.length === 0 ? (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-panel p-20 rounded-[2.5rem] border border-theme-base/5 bg-theme-base/[0.01] text-center flex flex-col items-center justify-center pt-24 pb-24">
+                    <div className="w-24 h-24 bg-theme-base/5 rounded-full flex items-center justify-center mb-6">
+                      <FileText className="w-10 h-10 text-theme-base/20" />
+                    </div>
+                    <h3 className="text-2xl font-black uppercase tracking-widest text-theme-base/40 mb-2">No Records Found</h3>
+                    <p className="text-theme-base/30 text-xs font-bold">Try adjusting your search or generate a new invoice.</p>
+                  </motion.div>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                      <thead>
-                        <tr className="border-b border-theme-base/5 text-[9px] font-black uppercase tracking-widest text-theme-base/30 [.light-theme_&]:text-theme-base/70">
-                          <th className="py-4 pr-6">Date</th>
-                          <th className="py-4 pr-6">Customer</th>
-                          <th className="py-4 pr-6">Amount</th>
-                          <th className="py-4 text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-theme-base/[0.03]">
-                        {savedInvoices.map(inv => (
-                          <tr key={inv.id} className="hover:bg-theme-base/[0.01] transition-colors">
-                            <td className="py-4 pr-6 text-xs text-theme-base/60 font-mono">{new Date(inv.date).toLocaleDateString()}</td>
-                            <td className="py-4 pr-6 font-bold text-sm text-theme-base">{inv.customer.name || 'Walk-in Customer'}</td>
-                            <td className="py-4 pr-6 font-mono text-xs text-brand-lime [.light-theme_&]:text-brand-text font-black">Rs. {inv.grandTotal.toLocaleString()}</td>
-                            <td className="py-4 text-right">
-                              <div className="flex justify-end gap-2">
-                                <button onClick={() => handleLoadInvoice(inv)} className="p-2.5 bg-theme-base/5 rounded-lg text-theme-base/60 hover:text-theme-base font-black text-[9px] uppercase tracking-widest transition-colors flex items-center gap-2">
-                                  OPEN
-                                </button>
-                                <button onClick={() => handleDeleteSavedInvoice(inv.id)} className="p-2.5 bg-red-500/5 rounded-lg text-red-500/40 hover:text-red-500 transition-colors">
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <AnimatePresence mode="popLayout">
+                      {filteredHistory.map((inv, idx) => (
+                        <motion.div
+                          key={inv.id}
+                          layout
+                          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                          transition={{ duration: 0.3, delay: Math.min(idx * 0.05, 0.5) }}
+                          className="glass-panel p-6 rounded-[2rem] border border-theme-base/10 bg-theme-base/[0.02] hover:bg-theme-base/[0.04] transition-all group hover:border-brand-lime/30 hover:shadow-xl hover:shadow-brand-lime/5 relative overflow-hidden"
+                        >
+                          <div className="absolute top-0 left-0 w-1 h-full bg-brand-lime/0 group-hover:bg-brand-lime transition-colors duration-300"></div>
+
+                          <div className="flex justify-between items-start mb-6">
+                            <div>
+                              <p className="text-[9px] font-black tracking-widest uppercase text-theme-base/40 mb-1">{new Date(inv.date).toLocaleDateString()}</p>
+                              <h3 className="text-lg font-black text-theme-base line-clamp-1">{inv.customer.name || 'Walk-in Customer'}</h3>
+                            </div>
+                            <div className="bg-brand-lime/10 px-3 py-1.5 rounded-lg border border-brand-lime/20 flex-shrink-0">
+                              <p className="text-brand-lime font-mono font-black text-xs">Rs. {inv.grandTotal.toLocaleString()}</p>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2 mb-8">
+                            <p className="text-xs font-bold text-theme-base/60 flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-theme-base/20"></span> {inv.items.length} Line Items</p>
+                            {inv.customer.phone && <p className="text-xs font-bold text-theme-base/60 flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-theme-base/20"></span> {inv.customer.phone}</p>}
+                          </div>
+
+                          <div className="flex gap-3">
+                            <button onClick={() => handleLoadInvoice(inv)} className="flex-1 bg-theme-base/5 hover:bg-brand-lime hover:text-black text-theme-base py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-center flex items-center justify-center gap-2">
+                              OPEN INVOICE
+                            </button>
+                            <button onClick={() => handleDeleteSavedInvoice(inv.id)} className="px-5 bg-red-500/5 text-red-500/60 hover:text-white hover:bg-red-500 rounded-xl transition-all flex items-center justify-center">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
                   </div>
                 )}
               </div>
