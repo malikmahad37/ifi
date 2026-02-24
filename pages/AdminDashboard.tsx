@@ -267,6 +267,30 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
       alert("Cannot save an empty invoice. Please enter at least a customer name or an item.");
       return;
     }
+
+    // Check against the most recently saved invoice to prevent spam clicking duplicates
+    if (savedInvoices.length > 0) {
+      const last = savedInvoices[0];
+      const isDuplicate =
+        last.customer.name === invoiceCustomer.name &&
+        last.customer.phone === invoiceCustomer.phone &&
+        last.customer.address === invoiceCustomer.address &&
+        last.discount === invoiceDiscount &&
+        last.tax === invoiceTax &&
+        last.notes === invoiceNotes &&
+        last.items.length === invoiceItems.length &&
+        last.items.every((item, i) =>
+          item.description === invoiceItems[i].description &&
+          item.weight === invoiceItems[i].weight &&
+          item.rate === invoiceItems[i].rate
+        );
+
+      if (isDuplicate) {
+        alert("NOTICE: This exact invoice is already saved. Please make changes before saving again.");
+        return;
+      }
+    }
+
     const newInvoice: SavedInvoice = {
       id: Date.now().toString(),
       date: invoiceDate,
