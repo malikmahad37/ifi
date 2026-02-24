@@ -107,6 +107,35 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
     ));
   };
 
+  // --- AUTO TRANSLATION UTILITY ---
+  const translateToUrdu = async (text: string): Promise<string> => {
+    if (!text) return '';
+    try {
+      const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ur&dt=t&q=${encodeURIComponent(text)}`);
+      const data = await res.json();
+      return data[0].map((item: any) => item[0]).join('');
+    } catch (error) {
+      console.error('Translation failed', error);
+      return '';
+    }
+  };
+
+  const handleCategoryTranslate = async (id: string, field: 'nameUrdu' | 'descriptionUrdu', textToTranslate: string) => {
+    if (!textToTranslate) return;
+    const translated = await translateToUrdu(textToTranslate);
+    if (translated) {
+      updateCategory(id, field, translated);
+    }
+  };
+
+  const handleSeriesTranslate = async (catId: string, seriesId: string, field: 'nameUrdu' | 'descriptionUrdu', textToTranslate: string) => {
+    if (!textToTranslate) return;
+    const translated = await translateToUrdu(textToTranslate);
+    if (translated) {
+      updateSeries(catId, seriesId, field, translated);
+    }
+  };
+
   const createCategory = () => {
     const newCat: Category = {
       id: Date.now().toString(),
@@ -394,7 +423,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                       <div className="space-y-6">
                         <div className="space-y-3">
                           <label className="text-[9px] font-black text-theme-base/30 [.light-theme_&]:text-theme-base/70 uppercase tracking-widest">Name (EN/UR)</label>
-                          <input value={cat.name} onChange={e => updateCategory(cat.id, 'name', e.target.value)} className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-theme-base font-black focus:border-brand-lime/50 transition-colors" />
+                          <input value={cat.name} onChange={e => updateCategory(cat.id, 'name', e.target.value)} onBlur={e => handleCategoryTranslate(cat.id, 'nameUrdu', e.target.value)} className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-theme-base font-black focus:border-brand-lime/50 transition-colors" />
                           <input dir="rtl" value={cat.nameUrdu} onChange={e => updateCategory(cat.id, 'nameUrdu', e.target.value)} className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-brand-text urdu-text text-2xl focus:border-brand-lime/50 transition-colors" />
                         </div>
                         <div className="space-y-3">
@@ -411,7 +440,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                         </div>
                         <div className="space-y-3">
                           <label className="text-[9px] font-black text-theme-base/30 [.light-theme_&]:text-theme-base/70 uppercase tracking-widest">Description (EN/UR)</label>
-                          <textarea value={cat.description} onChange={e => updateCategory(cat.id, 'description', e.target.value)} className="w-full h-24 bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-theme-base text-xs font-bold resize-none focus:border-brand-lime/50 transition-colors" placeholder="Category description..." />
+                          <textarea value={cat.description} onChange={e => updateCategory(cat.id, 'description', e.target.value)} onBlur={e => handleCategoryTranslate(cat.id, 'descriptionUrdu', e.target.value)} className="w-full h-24 bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-theme-base text-xs font-bold resize-none focus:border-brand-lime/50 transition-colors" placeholder="Category description..." />
                           <textarea dir="rtl" value={cat.descriptionUrdu} onChange={e => updateCategory(cat.id, 'descriptionUrdu', e.target.value)} className="w-full h-24 bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-brand-text urdu-text text-lg resize-none focus:border-brand-lime/50 transition-colors" placeholder="زمرہ کی تفصیل..." />
                         </div>
                       </div>
@@ -452,7 +481,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                       <div className="space-y-6">
                         <div className="space-y-3">
                           <label className="text-[9px] font-black text-theme-base/30 [.light-theme_&]:text-theme-base/70 uppercase tracking-widest">Series Detail</label>
-                          <input value={s.name} onChange={e => updateSeries(selectedCategoryId, s.id, 'name', e.target.value)} className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-theme-base font-black" />
+                          <input value={s.name} onChange={e => updateSeries(selectedCategoryId, s.id, 'name', e.target.value)} onBlur={e => handleSeriesTranslate(selectedCategoryId, s.id, 'nameUrdu', e.target.value)} className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-theme-base font-black" />
                           <input dir="rtl" value={s.nameUrdu} onChange={e => updateSeries(selectedCategoryId, s.id, 'nameUrdu', e.target.value)} className="w-full bg-input-bg border border-theme-base/10 rounded-xl px-5 py-4 text-brand-text urdu-text text-2xl" />
                         </div>
                         <div className="space-y-3">
@@ -475,7 +504,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                         </div>
                         <div className="space-y-2">
                           <label className="text-[9px] font-black text-theme-base/30 [.light-theme_&]:text-theme-base/70 uppercase tracking-widest">Description</label>
-                          <textarea value={s.description} onChange={e => updateSeries(selectedCategoryId, s.id, 'description', e.target.value)} className="w-full h-24 bg-input-bg border border-theme-base/10 rounded-xl p-4 text-xs text-theme-base resize-none" />
+                          <textarea value={s.description} onChange={e => updateSeries(selectedCategoryId, s.id, 'description', e.target.value)} onBlur={e => handleSeriesTranslate(selectedCategoryId, s.id, 'descriptionUrdu', e.target.value)} className="w-full h-24 bg-input-bg border border-theme-base/10 rounded-xl p-4 text-xs text-theme-base resize-none" />
                           <textarea dir="rtl" value={s.descriptionUrdu} onChange={e => updateSeries(selectedCategoryId, s.id, 'descriptionUrdu', e.target.value)} className="w-full h-24 bg-input-bg border border-theme-base/10 rounded-xl p-4 urdu-text text-base text-brand-text/80 resize-none" />
                         </div>
                         <div className="pt-4">
