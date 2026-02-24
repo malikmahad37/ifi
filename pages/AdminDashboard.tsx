@@ -5,6 +5,7 @@ import { initialCategories, contactInfo } from '../data/products';
 import { Category, ProductSeries, ContactInfo, Inquiry } from '../types';
 import { migrateCategories } from '../lib/firebase';
 import { INITIAL_CATEGORIES } from '../constants';
+import { Toast, ToastType } from '../components/Toast';
 
 interface AdminDashboardProps {
   categories: Category[];
@@ -212,15 +213,46 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
     localStorage.setItem('ifi_saved_invoices', JSON.stringify(savedInvoices));
   }, [savedInvoices]);
 
-  const [invoiceCustomer, setInvoiceCustomer] = useState({ name: '', phone: '', address: '' });
-  const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
-  const [invoiceDiscount, setInvoiceDiscount] = useState<number>(0);
-  const [invoiceTax, setInvoiceTax] = useState<number>(0);
-  const [invoiceNotes, setInvoiceNotes] = useState('');
+  // --- TOAST NOTIFICATIONS ---
+  const [toast, setToast] = useState<{ message: string, type: ToastType, isVisible: boolean }>({
+    message: '', type: 'info', isVisible: false
+  });
 
-  const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>([
+  const showToast = (message: string, type: ToastType = 'info') => {
+    setToast({ message, type, isVisible: true });
+  };
+
+  const closeToast = () => setToast(prev => ({ ...prev, isVisible: false }));
+
+  // --- INVOICE DRAFT STATE INITIALIZATION ---
+  const initialDraft = useMemo(() => {
+    try {
+      const draft = localStorage.getItem('ifi_invoice_draft');
+      return draft ? JSON.parse(draft) : null;
+    } catch { return null; }
+  }, []);
+
+  const [invoiceCustomer, setInvoiceCustomer] = useState(initialDraft?.customer || { name: '', phone: '', address: '' });
+  const [invoiceDate, setInvoiceDate] = useState(initialDraft?.date || new Date().toISOString().split('T')[0]);
+  const [invoiceDiscount, setInvoiceDiscount] = useState<number>(initialDraft?.discount || 0);
+  const [invoiceTax, setInvoiceTax] = useState<number>(initialDraft?.tax || 0);
+  const [invoiceNotes, setInvoiceNotes] = useState(initialDraft?.notes || '');
+  const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>(initialDraft?.items || [
     { id: Date.now().toString(), description: '', weight: '', rate: '', amount: 0 }
   ]);
+
+  // Draft Auto-Save
+  useEffect(() => {
+    const draftData = {
+      customer: invoiceCustomer,
+      date: invoiceDate,
+      discount: invoiceDiscount,
+      tax: invoiceTax,
+      notes: invoiceNotes,
+      items: invoiceItems
+    };
+    localStorage.setItem('ifi_invoice_draft', JSON.stringify(draftData));
+  }, [invoiceCustomer, invoiceDate, invoiceDiscount, invoiceTax, invoiceNotes, invoiceItems]);
 
   const updateInvoiceItem = (id: string, field: keyof InvoiceItem, value: string) => {
     setInvoiceItems(prev => prev.map(item => {
@@ -264,7 +296,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
 
   const handleSaveInvoice = () => {
     if (!invoiceCustomer.name && invoiceItems.length === 1 && !invoiceItems[0].amount) {
-      alert("Cannot save an empty invoice. Please enter at least a customer name or an item.");
+      showToast("Cannot save an empty invoice.", 'error');
       return;
     }
 
@@ -286,13 +318,24 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
         );
 
       if (isDuplicate) {
-        alert("NOTICE: This exact invoice is already saved. Please make changes before saving again.");
+        showToast("This exact invoice is already saved.", 'error');
         return;
       }
     }
 
+    // Generate formatted ID like IFI-260224-001
+    const today = new Date();
+    const dateStr = `${today.getDate().toString().padStart(2, '0')}${(today.getMonth() + 1).toString().padStart(2, '0')}${today.getFullYear().toString().slice(2)}`;
+    // Count how many invoices were created today for the sequence number
+    const todayInvoices = savedInvoices.filter(inv => {
+      const invDate = new Date(inv.timestamp);
+      return invDate.getDate() === today.getDate() && invDate.getMonth() === today.getMonth() && invDate.getFullYear() === today.getFullYear();
+    });
+    const seq = (todayInvoices.length + 1).toString().padStart(3, '0');
+    const formattedId = `IFI-${dateStr}-${seq}`;
+
     const newInvoice: SavedInvoice = {
-      id: Date.now().toString(),
+      id: formattedId,
       date: invoiceDate,
       customer: { ...invoiceCustomer },
       items: invoiceItems.map(item => ({ ...item })),
@@ -303,7 +346,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
       timestamp: Date.now()
     };
     setSavedInvoices(prev => [newInvoice, ...prev]);
-    alert("SUCCESS: Invoice saved locally to the browser's memory!");
+    showToast("Invoice saved securely.", 'success');
   };
 
   const handleLoadInvoice = (inv: SavedInvoice) => {
@@ -315,6 +358,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
       setInvoiceTax(inv.tax);
       setInvoiceNotes(inv.notes);
       setShowInvoiceHistory(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -960,6 +1004,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
           </div>
         </section>
       )}
+
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={closeToast}
+      />
     </div>
   );
 };
