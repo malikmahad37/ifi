@@ -232,6 +232,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
     } catch { return null; }
   }, []);
 
+  const [currentInvoiceId, setCurrentInvoiceId] = useState<string | null>(initialDraft?.id || null);
   const [invoiceCustomer, setInvoiceCustomer] = useState(initialDraft?.customer || { name: '', phone: '', address: '' });
   const [invoiceDate, setInvoiceDate] = useState(initialDraft?.date || new Date().toISOString().split('T')[0]);
   const [invoiceDiscount, setInvoiceDiscount] = useState<number>(initialDraft?.discount || 0);
@@ -244,6 +245,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
   // Draft Auto-Save
   useEffect(() => {
     const draftData = {
+      id: currentInvoiceId,
       customer: invoiceCustomer,
       date: invoiceDate,
       discount: invoiceDiscount,
@@ -252,7 +254,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
       items: invoiceItems
     };
     localStorage.setItem('ifi_invoice_draft', JSON.stringify(draftData));
-  }, [invoiceCustomer, invoiceDate, invoiceDiscount, invoiceTax, invoiceNotes, invoiceItems]);
+  }, [currentInvoiceId, invoiceCustomer, invoiceDate, invoiceDiscount, invoiceTax, invoiceNotes, invoiceItems]);
 
   const updateInvoiceItem = (id: string, field: keyof InvoiceItem, value: string) => {
     setInvoiceItems(prev => prev.map(item => {
@@ -332,7 +334,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
       return invDate.getDate() === today.getDate() && invDate.getMonth() === today.getMonth() && invDate.getFullYear() === today.getFullYear();
     });
     const seq = (todayInvoices.length + 1).toString().padStart(3, '0');
-    const formattedId = `IFI-${dateStr}-${seq}`;
+    const formattedId = currentInvoiceId || `IFI-${dateStr}-${seq}`;
 
     const newInvoice: SavedInvoice = {
       id: formattedId,
@@ -346,11 +348,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
       timestamp: Date.now()
     };
     setSavedInvoices(prev => [newInvoice, ...prev]);
+    setCurrentInvoiceId(formattedId);
     showToast("Invoice saved securely.", 'success');
   };
 
   const handleLoadInvoice = (inv: SavedInvoice) => {
     if (window.confirm("Loading this invoice will overwrite your current unsaved changes. Continue?")) {
+      setCurrentInvoiceId(inv.id);
       setInvoiceCustomer(inv.customer);
       setInvoiceDate(inv.date);
       setInvoiceItems(inv.items);
@@ -680,13 +684,28 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
               </div>
 
               {!showInvoiceHistory && (
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-wrap gap-4 items-center">
+                  {currentInvoiceId && (
+                    <div className="bg-brand-lime/10 border border-brand-lime/20 text-brand-lime px-4 py-3 rounded-xl text-xs font-mono font-black mr-2">
+                      {currentInvoiceId}
+                    </div>
+                  )}
                   <input
                     type="date"
                     value={invoiceDate}
                     onChange={e => setInvoiceDate(e.target.value)}
                     className="bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors"
                   />
+                  <button onClick={() => {
+                    setCurrentInvoiceId(null);
+                    setInvoiceCustomer({ name: '', phone: '', address: '' });
+                    setInvoiceItems([{ id: Date.now().toString(), description: '', weight: '', rate: '', amount: 0 }]);
+                    setInvoiceDiscount(0);
+                    setInvoiceTax(0);
+                    setInvoiceNotes('');
+                  }} className="bg-red-500/5 hover:bg-red-500 hover:text-white text-red-500 px-6 py-3.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 border border-red-500/10 transition-all">
+                    CLEAR
+                  </button>
                   <button onClick={handleSaveInvoice} className="bg-theme-base/5 hover:bg-theme-base/10 text-theme-base px-6 py-3.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 border border-theme-base/10 transition-colors">
                     <Save className="w-4 h-4" /> SAVE RECORD
                   </button>
@@ -735,7 +754,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
 
                           <div className="flex justify-between items-start mb-6">
                             <div>
-                              <p className="text-[9px] font-black tracking-widest uppercase text-theme-base/40 mb-1">{new Date(inv.date).toLocaleDateString()}</p>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-[9px] font-black tracking-widest uppercase text-brand-lime px-1.5 py-0.5 bg-brand-lime/10 rounded">{inv.id}</span>
+                                <span className="text-[9px] font-black tracking-widest uppercase text-theme-base/40">{new Date(inv.date).toLocaleDateString()}</span>
+                              </div>
                               <h3 className="text-lg font-black text-theme-base line-clamp-1">{inv.customer.name || 'Walk-in Customer'}</h3>
                             </div>
                             <div className="bg-brand-lime/10 px-3 py-1.5 rounded-lg border border-brand-lime/20 flex-shrink-0">
@@ -906,7 +928,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                     <p className="text-xs text-gray-600 mt-1">Phone: {contact.phone}</p>
                   </div>
                   <div className="text-right">
-                    <div className="text-4xl font-black text-gray-200">#{Date.now().toString().slice(-6)}</div>
+                    <div className="text-3xl font-black text-gray-200">{currentInvoiceId || `DRAFT-${Date.now().toString().slice(-4)}`}</div>
                     <p className="text-xs font-bold mt-1">Date: {new Date(invoiceDate).toLocaleDateString()}</p>
                   </div>
                 </div>
