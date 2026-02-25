@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Check, Save, Upload, Info, MessageSquare, Trash2, Edit2, Archive, Package, LayoutDashboard, Inbox, Mail, FileText, X, ArrowLeft, Search, History } from 'lucide-react';
-import { initialCategories, contactInfo } from '../data/products';
 import { Category, ProductSeries, ContactInfo, Inquiry } from '../types';
 import { migrateCategories } from '../lib/firebase';
 import { INITIAL_CATEGORIES } from '../constants';
@@ -366,18 +365,35 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
     }
   };
 
-  const handleDeleteSavedInvoice = (invId: string) => {
-    if (window.confirm("Permanently delete this saved invoice history?")) {
-      setSavedInvoices(prev => prev.filter(i => i.id !== invId));
+  const handleClearHistory = () => {
+    if (savedInvoices.length === 0) return;
+    if (window.confirm("WARNING: Are you sure you want to delete ALL saved invoices? This cannot be undone.")) {
+      setSavedInvoices([]);
+      showToast("All invoice history has been cleared.", 'success');
     }
+  };
+
+  const handleQuickPrint = (inv: SavedInvoice) => {
+    // Temporarily set state to the selected invoice, print, then revert if necessary,
+    // but the easiest robust way is just load it then trigger print
+    handleLoadInvoice(inv);
+    setTimeout(() => {
+      handlePrintInvoice();
+    }, 500);
   };
 
   const handlePrintInvoice = () => {
     window.print();
   };
 
+  const handleDeleteSavedInvoice = (invId: string) => {
+    if (window.confirm("Permanently delete this saved invoice history?")) {
+      setSavedInvoices(prev => prev.filter(i => i.id !== invId));
+    }
+  };
+
   return (
-    <div className="min-h-screen pt-20 md:pt-24 pb-20 px-4 max-w-7xl mx-auto transition-colors duration-300">
+    <>
       {/* Dashboard Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-theme-base/10 pb-10 mb-10">
         <motion.div
@@ -684,9 +700,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
               </div>
 
               {!showInvoiceHistory && (
-                <div className="flex flex-wrap gap-4 items-center">
+                <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-center w-full md:w-auto">
                   {currentInvoiceId && (
-                    <div className="bg-brand-lime/10 border border-brand-lime/20 text-brand-lime px-4 py-3 rounded-xl text-xs font-mono font-black mr-2">
+                    <div className="bg-brand-lime/10 border border-brand-lime/20 text-brand-lime px-4 py-3 rounded-xl text-xs font-mono font-black w-full text-center sm:w-auto sm:mr-2">
                       {currentInvoiceId}
                     </div>
                   )}
@@ -694,22 +710,24 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                     type="date"
                     value={invoiceDate}
                     onChange={e => setInvoiceDate(e.target.value)}
-                    className="bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors"
+                    className="w-full sm:w-auto bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-xl px-4 py-3 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors"
                   />
-                  <button onClick={() => {
-                    setCurrentInvoiceId(null);
-                    setInvoiceCustomer({ name: '', phone: '', address: '' });
-                    setInvoiceItems([{ id: Date.now().toString(), description: '', weight: '', rate: '', amount: 0 }]);
-                    setInvoiceDiscount(0);
-                    setInvoiceTax(0);
-                    setInvoiceNotes('');
-                  }} className="bg-red-500/5 hover:bg-red-500 hover:text-white text-red-500 px-6 py-3.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 border border-red-500/10 transition-all">
-                    CLEAR
-                  </button>
-                  <button onClick={handleSaveInvoice} className="bg-theme-base/5 hover:bg-theme-base/10 text-theme-base px-6 py-3.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 border border-theme-base/10 transition-colors">
-                    <Save className="w-4 h-4" /> SAVE RECORD
-                  </button>
-                  <button onClick={handlePrintInvoice} className="bg-brand-lime text-black px-8 py-3.5 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-brand-lime/10 flex items-center gap-2">
+                  <div className="flex gap-2 w-full sm:w-auto">
+                    <button onClick={() => {
+                      setCurrentInvoiceId(null);
+                      setInvoiceCustomer({ name: '', phone: '', address: '' });
+                      setInvoiceItems([{ id: Date.now().toString(), description: '', weight: '', rate: '', amount: 0 }]);
+                      setInvoiceDiscount(0);
+                      setInvoiceTax(0);
+                      setInvoiceNotes('');
+                    }} className="flex-1 sm:flex-none justify-center bg-red-500/5 hover:bg-red-500 hover:text-white text-red-500 px-6 py-3.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 border border-red-500/10 transition-all">
+                      CLEAR
+                    </button>
+                    <button onClick={handleSaveInvoice} className="flex-1 sm:flex-none justify-center bg-theme-base/5 hover:bg-theme-base/10 text-theme-base px-6 py-3.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 border border-theme-base/10 transition-colors">
+                      <Save className="w-4 h-4" /> SAVE RECORD
+                    </button>
+                  </div>
+                  <button onClick={handlePrintInvoice} className="w-full sm:w-auto bg-brand-lime text-black px-8 py-3.5 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-brand-lime/10 flex items-center justify-center gap-2">
                     <FileText className="w-4 h-4" /> GENERATE & PRINT
                   </button>
                 </div>
@@ -718,15 +736,23 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
 
             {showInvoiceHistory ? (
               <div className="space-y-8 animate-fade-in">
-                <div className="relative w-full md:w-[400px]">
-                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-base/20 [.light-theme_&]:text-theme-base/60" />
-                  <input
-                    type="text"
-                    placeholder="Search by customer name or ID..."
-                    value={historySearchQuery}
-                    onChange={(e) => setHistorySearchQuery(e.target.value)}
-                    className="w-full bg-input-bg border border-theme-base/10 rounded-2xl pl-14 pr-6 py-4 text-sm text-theme-base font-bold focus:outline-none focus:border-brand-lime/30 placeholder:text-theme-base/30 [.light-theme_&]:placeholder:text-theme-base/70 shadow-sm transition-all"
-                  />
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="relative w-full sm:w-[400px]">
+                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-base/20 [.light-theme_&]:text-theme-base/60" />
+                    <input
+                      type="text"
+                      placeholder="Search by customer name or ID..."
+                      value={historySearchQuery}
+                      onChange={(e) => setHistorySearchQuery(e.target.value)}
+                      className="w-full bg-input-bg border border-theme-base/10 rounded-2xl pl-14 pr-6 py-4 text-sm text-theme-base font-bold focus:outline-none focus:border-brand-lime/30 placeholder:text-theme-base/30 [.light-theme_&]:placeholder:text-theme-base/70 shadow-sm transition-all"
+                    />
+                  </div>
+
+                  {savedInvoices.length > 0 && (
+                    <button onClick={handleClearHistory} className="w-full sm:w-auto px-6 py-4 bg-red-500/5 hover:bg-red-500 hover:text-white text-red-500 border border-red-500/10 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2">
+                      <Trash2 className="w-4 h-4" /> Clear All History
+                    </button>
+                  )}
                 </div>
 
                 {filteredHistory.length === 0 ? (
@@ -734,7 +760,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                     <div className="w-24 h-24 bg-theme-base/5 rounded-full flex items-center justify-center mb-6">
                       <FileText className="w-10 h-10 text-theme-base/20" />
                     </div>
-                    <h3 className="text-2xl font-black uppercase tracking-widest text-theme-base/40 mb-2">No Records Found</h3>
+                    <h3 className="2xl font-black uppercase tracking-widest text-theme-base/40 mb-2">No Records Found</h3>
                     <p className="text-theme-base/30 text-xs font-bold">Try adjusting your search or generate a new invoice.</p>
                   </motion.div>
                 ) : (
@@ -770,11 +796,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                             {inv.customer.phone && <p className="text-xs font-bold text-theme-base/60 flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-theme-base/20"></span> {inv.customer.phone}</p>}
                           </div>
 
-                          <div className="flex gap-3">
-                            <button onClick={() => handleLoadInvoice(inv)} className="flex-1 bg-theme-base/5 hover:bg-brand-lime hover:text-black text-theme-base py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-center flex items-center justify-center gap-2">
-                              OPEN INVOICE
+                          <div className="flex gap-2">
+                            <button onClick={() => handleLoadInvoice(inv)} className="flex-1 bg-theme-base/5 hover:bg-theme-base hover:text-input-bg text-theme-base py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-center flex items-center justify-center gap-2">
+                              OPEN
                             </button>
-                            <button onClick={() => handleDeleteSavedInvoice(inv.id)} className="px-5 bg-red-500/5 text-red-500/60 hover:text-white hover:bg-red-500 rounded-xl transition-all flex items-center justify-center">
+                            <button onClick={() => handleQuickPrint(inv)} className="flex-1 bg-brand-lime/10 hover:bg-brand-lime hover:text-black text-brand-lime py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-center flex items-center justify-center gap-2">
+                              PRINT
+                            </button>
+                            <button onClick={() => handleDeleteSavedInvoice(inv.id)} className="w-12 flex-shrink-0 bg-red-500/5 text-red-500/60 hover:text-white hover:bg-red-500 rounded-xl transition-all flex items-center justify-center">
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
@@ -823,89 +852,91 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                       </div>
                     </div>
 
-                    <div className="space-y-3">
-                      {invoiceItems.map((item, idx) => (
-                        <div key={item.id} className="grid grid-cols-12 gap-2 items-center bg-theme-base/5 p-3 rounded-xl border border-theme-base/5">
-                          <div className="col-span-1 text-center text-[9px] text-theme-base/30 [.light-theme_&]:text-theme-base/70 font-bold">{idx + 1}</div>
-                          <div className="col-span-5">
-                            <input
-                              list="products-list"
-                              placeholder="Product Description"
-                              value={item.description}
-                              onChange={e => updateInvoiceItem(item.id, 'description', e.target.value)}
-                              className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors focus:ring-0"
-                            />
-                            <datalist id="products-list">
-                              {allProducts.map((p, i) => <option key={i} value={p.value}>{p.label}</option>)}
-                            </datalist>
+                    <div className="space-y-3 mt-4 overflow-x-auto pb-2">
+                      <div className="min-w-[500px]">
+                        {invoiceItems.map((item, idx) => (
+                          <div key={item.id} className="grid grid-cols-12 gap-2 items-center bg-theme-base/5 p-3 rounded-xl border border-theme-base/5 mb-2">
+                            <div className="col-span-1 text-center text-[9px] text-theme-base/30 [.light-theme_&]:text-theme-base/70 font-bold">{idx + 1}</div>
+                            <div className="col-span-5">
+                              <input
+                                list="products-list"
+                                placeholder="Product Description"
+                                value={item.description}
+                                onChange={e => updateInvoiceItem(item.id, 'description', e.target.value)}
+                                className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-bold focus:border-brand-lime/50 transition-colors focus:ring-0"
+                              />
+                              <datalist id="products-list">
+                                {allProducts.map((p, i) => <option key={i} value={p.value}>{p.label}</option>)}
+                              </datalist>
+                            </div>
+                            <div className="col-span-2">
+                              <input
+                                type="number"
+                                placeholder="Weight (kg)"
+                                value={item.weight}
+                                onChange={e => updateInvoiceItem(item.id, 'weight', e.target.value)}
+                                className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-mono focus:border-brand-lime/50 transition-colors focus:ring-0 text-center"
+                              />
+                            </div>
+                            <div className="col-span-2">
+                              <input
+                                type="number"
+                                placeholder="Rate"
+                                value={item.rate}
+                                onChange={e => updateInvoiceItem(item.id, 'rate', e.target.value)}
+                                className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-mono focus:border-brand-lime/50 transition-colors focus:ring-0 text-center"
+                              />
+                            </div>
+                            <div className="col-span-2 flex items-center justify-between pl-2">
+                              <span className="text-xs font-black font-mono text-brand-lime [.light-theme_&]:text-brand-text">{(item.amount || 0).toLocaleString()}</span>
+                              <button onClick={() => removeInvoiceItem(item.id)} className="p-1.5 text-red-500/40 hover:text-red-500 hover:bg-red-500/10 rounded-md transition-colors">
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                           </div>
-                          <div className="col-span-2">
-                            <input
-                              type="number"
-                              placeholder="Weight (kg)"
-                              value={item.weight}
-                              onChange={e => updateInvoiceItem(item.id, 'weight', e.target.value)}
-                              className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-mono focus:border-brand-lime/50 transition-colors focus:ring-0 text-center"
-                            />
-                          </div>
-                          <div className="col-span-2">
-                            <input
-                              type="number"
-                              placeholder="Rate"
-                              value={item.rate}
-                              onChange={e => updateInvoiceItem(item.id, 'rate', e.target.value)}
-                              className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-mono focus:border-brand-lime/50 transition-colors focus:ring-0 text-center"
-                            />
-                          </div>
-                          <div className="col-span-1 text-right text-[10px] font-mono text-theme-base/60">
-                            {item.amount.toLocaleString()}
-                          </div>
-                          <div className="col-span-1 text-center">
-                            <button onClick={() => removeInvoiceItem(item.id)} className="text-red-500/40 hover:text-red-500 transition-colors"><X className="w-3 h-3" /></button>
-                          </div>
-                        </div>
-                      ))}
-                      <button onClick={addInvoiceItem} className="w-full py-3 border-2 border-dashed border-theme-base/10 rounded-xl text-[10px] font-black uppercase text-theme-base/30 [.light-theme_&]:text-theme-base/70 hover:text-brand-text hover:border-brand-lime/30 transition-all">
-                        + Add Line Item
-                      </button>
+                        ))}
+                      </div>
+                    </div>
+                    <button onClick={addInvoiceItem} className="w-full py-3 border-2 border-dashed border-theme-base/10 rounded-xl text-[10px] font-black uppercase text-theme-base/30 [.light-theme_&]:text-theme-base/70 hover:text-brand-text hover:border-brand-lime/30 transition-all">
+                      + Add Line Item
+                    </button>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-theme-base/5">
-                        <div className="space-y-4">
-                          <label className="text-[9px] font-black text-theme-base uppercase tracking-widest">Terms & Notes</label>
-                          <textarea
-                            value={invoiceNotes}
-                            onChange={e => setInvoiceNotes(e.target.value)}
-                            className="w-full h-24 bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-xl p-4 text-xs text-theme-base resize-none"
-                            placeholder="Payment terms, delivery notes, etc."
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-theme-base/5">
+                      <div className="space-y-4">
+                        <label className="text-[9px] font-black text-theme-base uppercase tracking-widest">Terms & Notes</label>
+                        <textarea
+                          value={invoiceNotes}
+                          onChange={e => setInvoiceNotes(e.target.value)}
+                          className="w-full h-24 bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-xl p-4 text-xs text-theme-base resize-none"
+                          placeholder="Payment terms, delivery notes, etc."
+                        />
+                      </div>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-theme-base/5">
+                          <label className="text-[9px] font-black text-theme-base uppercase tracking-widest">Subtotal</label>
+                          <span className="text-sm font-mono text-theme-base">Rs. {subTotal.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center gap-4 bg-white/5 p-3 rounded-xl border border-theme-base/5">
+                          <label className="text-[9px] font-black text-theme-base uppercase tracking-widest whitespace-nowrap">Discount (-)</label>
+                          <input
+                            type="number"
+                            value={invoiceDiscount}
+                            onChange={e => setInvoiceDiscount(parseFloat(e.target.value) || 0)}
+                            className="w-24 bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-lg px-2 py-1 text-right text-xs font-mono"
                           />
                         </div>
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center">
-                            <label className="text-[9px] font-black text-theme-base uppercase tracking-widest">Subtotal</label>
-                            <span className="text-sm font-mono text-theme-base">Rs. {subTotal.toLocaleString()}</span>
-                          </div>
-                          <div className="flex justify-between items-center gap-4">
-                            <label className="text-[9px] font-black text-theme-base uppercase tracking-widest whitespace-nowrap">Discount (Amount)</label>
-                            <input
-                              type="number"
-                              value={invoiceDiscount}
-                              onChange={e => setInvoiceDiscount(parseFloat(e.target.value) || 0)}
-                              className="w-24 bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-lg px-2 py-1 text-right text-xs font-mono"
-                            />
-                          </div>
-                          <div className="flex justify-between items-center gap-4">
-                            <label className="text-[9px] font-black text-theme-base uppercase tracking-widest whitespace-nowrap">Tax (%)</label>
-                            <input
-                              type="number"
-                              value={invoiceTax}
-                              onChange={e => setInvoiceTax(parseFloat(e.target.value) || 0)}
-                              className="w-24 bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-lg px-2 py-1 text-right text-xs font-mono"
-                            />
-                          </div>
-                          <div className="flex justify-between items-center border-t border-theme-base/10 pt-4">
-                            <label className="text-xs font-black text-brand-text uppercase tracking-widest">Grand Total</label>
-                            <span className="text-lg font-black font-mono text-theme-base">Rs. {grandTotal.toLocaleString()}</span>
-                          </div>
+                        <div className="flex justify-between items-center gap-4 bg-white/5 p-3 rounded-xl border border-theme-base/5">
+                          <label className="text-[9px] font-black text-theme-base uppercase tracking-widest whitespace-nowrap">Tax (%)</label>
+                          <input
+                            type="number"
+                            value={invoiceTax}
+                            onChange={e => setInvoiceTax(parseFloat(e.target.value) || 0)}
+                            className="w-24 bg-white/5 [.light-theme_&]:bg-white border border-theme-base/10 rounded-lg px-2 py-1 text-right text-xs font-mono"
+                          />
+                        </div>
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-t border-theme-base/10 pt-4 gap-2">
+                          <label className="text-xs font-black text-brand-text uppercase tracking-widest">Grand Total</label>
+                          <span className="text-xl sm:text-2xl font-black font-mono text-brand-lime">Rs. {grandTotal.toLocaleString()}</span>
                         </div>
                       </div>
                     </div>
@@ -914,94 +945,89 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
               </div>
             )}
           </div>
-
-          {/* Printable Invoice (Hidden on Screen) */}
-          <div className="hidden print:block fixed inset-0 bg-white z-[9999] p-8 text-black">
-            <div className="max-w-[210mm] mx-auto h-full flex flex-col justify-between">
-              <div className="space-y-8">
-                {/* Header */}
-                <div className="flex justify-between items-start border-b-2 border-black pb-6">
-                  <div>
-                    <h1 className="text-3xl font-black uppercase tracking-tighter">INVOICE</h1>
-                    <p className="text-sm font-bold mt-1">iFi ITTEFAQ FASTENERS INDUSTRIES</p>
-                    <p className="text-xs text-gray-600 mt-1 max-w-[250px]">{contact.address}</p>
-                    <p className="text-xs text-gray-600 mt-1">Phone: {contact.phone}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-black text-gray-200">{currentInvoiceId || `DRAFT-${Date.now().toString().slice(-4)}`}</div>
-                    <p className="text-xs font-bold mt-1">Date: {new Date(invoiceDate).toLocaleDateString()}</p>
-                  </div>
-                </div>
-
-                {/* Customer */}
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <p className="text-[10px] font-bold uppercase text-gray-400 tracking-widest mb-1">Bill To:</p>
-                  <p className="font-bold text-lg">{invoiceCustomer.name || 'Walk-in Customer'}</p>
-                  {invoiceCustomer.phone && <p className="text-sm text-gray-600">{invoiceCustomer.phone}</p>}
-                  {invoiceCustomer.address && <p className="text-sm text-gray-600 mt-1">{invoiceCustomer.address}</p>}
-                </div>
-
-                {/* Table */}
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b-2 border-black">
-                      <th className="py-2 text-xs font-black uppercase">Description</th>
-                      <th className="py-2 text-xs font-black uppercase text-center">Weight / Qty</th>
-                      <th className="py-2 text-xs font-black uppercase text-center">Rate</th>
-                      <th className="py-2 text-xs font-black uppercase text-right">Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {invoiceItems.map((item, idx) => (
-                      <tr key={idx}>
-                        <td className="py-3 text-sm font-medium">{item.description}</td>
-                        <td className="py-3 text-sm text-center font-mono">{item.weight}</td>
-                        <td className="py-3 text-sm text-center font-mono">{item.rate}</td>
-                        <td className="py-3 text-sm text-right font-mono font-bold">{item.amount.toLocaleString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr className="border-t-2 border-black">
-                      <td colSpan={3} className="py-2 text-right text-xs font-bold uppercase pr-8 text-gray-500">Subtotal</td>
-                      <td className="py-2 text-right text-sm font-bold font-mono">Rs. {subTotal.toLocaleString()}</td>
-                    </tr>
-                    {invoiceDiscount > 0 && (
-                      <tr>
-                        <td colSpan={3} className="py-2 text-right text-xs font-bold uppercase pr-8 text-gray-500">Discount</td>
-                        <td className="py-2 text-right text-sm font-bold font-mono">- Rs. {invoiceDiscount.toLocaleString()}</td>
-                      </tr>
-                    )}
-                    {invoiceTax > 0 && (
-                      <tr>
-                        <td colSpan={3} className="py-2 text-right text-xs font-bold uppercase pr-8 text-gray-500">Tax ({invoiceTax}%)</td>
-                        <td className="py-2 text-right text-sm font-bold font-mono">+ Rs. {taxAmount.toLocaleString()}</td>
-                      </tr>
-                    )}
-                    <tr className="border-t border-black">
-                      <td colSpan={3} className="py-4 text-right text-sm font-black uppercase pr-8">Grand Total</td>
-                      <td className="py-4 text-right text-lg font-black font-mono">Rs. {grandTotal.toLocaleString()}</td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-
-              {/* Footer */}
-              <div className="grid grid-cols-2 gap-10 text-left pt-4">
-                <div>
-                  <p className="text-[10px] font-bold uppercase text-gray-400 tracking-widest mb-2">Terms & Notes:</p>
-                  <p className="text-xs text-gray-600 whitespace-pre-wrap">{invoiceNotes}</p>
-                </div>
-                <div className="flex flex-col justify-end items-end">
-                  <div className="w-48 border-b-2 border-black mb-2"></div>
-                  <p className="text-[10px] font-bold uppercase">Authorized Signatory</p>
-                </div>
-              </div>
-              <p className="text-[10px] text-center text-gray-500 pt-8">Computer generated invoice.</p>
-            </div>
-          </div>
         </section>
       )}
+
+      {/* Printable Invoice (Hidden on Screen) */}
+      <div className="hidden print:block fixed inset-0 bg-white z-[9999] p-8 text-black">
+        <div className="max-w-[210mm] mx-auto h-full flex flex-col justify-between">
+          <div className="space-y-8">
+            {/* Header */}
+            <div className="flex justify-between items-start border-b-2 border-black pb-6">
+              <div>
+                <h1 className="text-3xl font-black uppercase tracking-tighter">INVOICE</h1>
+                <p className="text-sm font-bold mt-1">iFi ITTEFAQ FASTENERS INDUSTRIES</p>
+                <p className="text-xs text-gray-600 mt-1 max-w-[250px]">{contact.address}</p>
+                <p className="text-xs text-gray-600 mt-1">Phone: {contact.phone}</p>
+              </div>
+              <div className="text-right">
+                <div className="text-3xl font-black text-gray-200">{currentInvoiceId || `DRAFT-${Date.now().toString().slice(-4)}`}</div>
+                <p className="text-xs font-bold mt-1">Date: {new Date(invoiceDate).toLocaleDateString()}</p>
+              </div>
+            </div>
+
+            {/* Customer */}
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+              <p className="text-[10px] font-bold uppercase text-gray-400 tracking-widest mb-1">Bill To:</p>
+              <p className="font-bold text-lg">{invoiceCustomer.name || 'Walk-in Customer'}</p>
+              {invoiceCustomer.phone && <p className="text-sm text-gray-600">{invoiceCustomer.phone}</p>}
+              {invoiceCustomer.address && <p className="text-sm text-gray-600 mt-1">{invoiceCustomer.address}</p>}
+            </div>
+
+            {/* Table */}
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b-2 border-black">
+                  <th className="py-2 text-xs font-black uppercase">Description</th>
+                  <th className="py-2 text-xs font-black uppercase text-center">Weight / Qty</th>
+                  <th className="py-2 text-xs font-black uppercase text-center">Rate</th>
+                  <th className="py-2 text-xs font-black uppercase text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {invoiceItems.map((item, idx) => (
+                  <tr key={idx}>
+                    <td className="py-3 text-sm font-medium">{item.description}</td>
+                    <td className="py-3 text-sm text-center font-mono">{item.weight}</td>
+                    <td className="py-3 text-sm text-center font-mono">{item.rate}</td>
+                    <td className="py-3 text-sm text-right font-mono font-bold">{item.amount.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="border-t-2 border-black">
+                  <td colSpan={3} className="py-2 text-right text-xs font-bold uppercase pr-8 text-gray-500">Subtotal</td>
+                  <td className="py-2 text-right text-sm font-bold font-mono">Rs. {subTotal.toLocaleString()}</td>
+                </tr>
+                {invoiceDiscount > 0 && (
+                  <tr>
+                    <td colSpan={3} className="py-2 text-right text-xs font-bold uppercase pr-8 text-gray-500">Discount</td>
+                    <td className="py-2 text-right text-sm font-bold font-mono">- Rs. {invoiceDiscount.toLocaleString()}</td>
+                  </tr>
+                )}
+                <tr className="border-t border-black">
+                  <td colSpan={3} className="py-4 text-right text-sm font-black uppercase pr-8">Grand Total</td>
+                  <td className="py-4 text-right text-lg font-black font-mono">Rs. {grandTotal.toLocaleString()}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          {/* Footer */}
+          <div className="grid grid-cols-2 gap-10 text-left pt-4">
+            <div>
+              <p className="text-[10px] font-bold uppercase text-gray-400 tracking-widest mb-2">Terms & Notes:</p>
+              <p className="text-xs text-gray-600 whitespace-pre-wrap">{invoiceNotes}</p>
+            </div>
+            <div className="flex flex-col justify-end items-end">
+              <div className="w-48 border-b-2 border-black mb-2"></div>
+              <p className="text-[10px] font-bold uppercase">Authorized Signatory</p>
+            </div>
+          </div>
+          <p className="text-[10px] text-center text-gray-500 pt-8">Computer generated invoice.</p>
+        </div>
+      </div>
+
 
       {activeTab === 'contact' && (
         <section className="space-y-10 animate-fade-in">
@@ -1033,7 +1059,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
         isVisible={toast.isVisible}
         onClose={closeToast}
       />
-    </div>
+    </>
   );
 };
 
