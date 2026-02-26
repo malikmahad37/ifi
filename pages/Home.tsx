@@ -53,29 +53,78 @@ const Home: React.FC<HomeProps> = ({ categories, contact }) => {
           className="z-10 text-center space-y-6 md:space-y-8 max-w-2xl w-full"
         >
           {/* Logo Container Box */}
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center relative perspective-[1000px]">
             <motion.div
-              variants={itemVariants}
-              whileHover={{ scale: 1.02 }}
-              className="bg-brand-lime p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] shadow-2xl shadow-brand-lime/20 mb-6 md:mb-10 cursor-pointer"
+              initial={{ opacity: 0, scale: 0.5, rotateX: -20, y: -50 }}
+              animate={{ opacity: 1, scale: 1, rotateX: 0, y: 0 }}
+              transition={{
+                type: "spring",
+                stiffness: 150,
+                damping: 15,
+                mass: 1,
+                duration: 0.8
+              }}
+              whileHover={{ scale: 1.05, rotate: [0, -2, 2, 0], transition: { duration: 0.3 } }}
+              className="bg-brand-lime p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] shadow-2xl shadow-brand-lime/30 mb-6 md:mb-10 cursor-pointer relative z-10"
             >
-              <Logo className="w-24 h-24 md:w-56 md:h-56" />
+              <Logo className="w-24 h-24 md:w-56 md:h-56 filter drop-shadow-xl" />
+              {/* Outer glowing ring for the logo */}
+              <motion.div
+                initial={{ scale: 1, opacity: 0.5 }}
+                animate={{ scale: 1.15, opacity: 0 }}
+                transition={{ repeat: Infinity, duration: 1.5, ease: "easeOut" }}
+                className="absolute inset-0 rounded-[2rem] md:rounded-[3rem] border-2 border-brand-lime pointer-events-none"
+              />
             </motion.div>
 
-            <motion.div variants={itemVariants} className="space-y-2">
-              <h2 className="text-6xl md:text-8xl font-black text-brand-lime tracking-tighter uppercase leading-none drop-shadow-sm">iFi</h2>
-              <h1 className="text-sm md:text-2xl font-black text-[#8ea4b0] tracking-[0.2em] md:tracking-[0.25em] uppercase leading-tight mt-2">
+            <motion.div variants={itemVariants} className="space-y-3 relative z-20">
+              <motion.div className="flex justify-center items-center gap-1 overflow-hidden h-20 md:h-32">
+                {['i', 'F', 'i'].map((letter, i) => (
+                  <motion.span
+                    key={i}
+                    initial={{ y: 100, opacity: 0, rotateZ: i % 2 === 0 ? -10 : 10 }}
+                    animate={{ y: 0, opacity: 1, rotateZ: 0 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 12,
+                      delay: 0.2 + (i * 0.1)
+                    }}
+                    className="text-7xl md:text-[8rem] font-black text-brand-lime tracking-tighter uppercase leading-none drop-shadow-lg inline-block"
+                    whileHover={{ y: -10, color: '#ffffff', transition: { duration: 0.2 } }}
+                  >
+                    {letter}
+                  </motion.span>
+                ))}
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6, duration: 0.5, type: "spring" }}
+                className="text-sm md:text-2xl font-black text-theme-base/70 [.light-theme_&]:text-theme-base tracking-[0.2em] md:tracking-[0.25em] uppercase leading-tight mt-4"
+              >
                 Ittefaq Fasteners Industries
-              </h1>
-              <motion.div
-                className="h-1 w-24 bg-brand-lime/50 mx-auto my-4 rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: 100 }}
-                transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
-              />
-              <p className="urdu-text text-brand-lime text-2xl md:text-4xl font-bold mt-2 drop-shadow-lg">
+              </motion.h1>
+
+              <div className="relative">
+                <motion.div
+                  className="h-1 bg-brand-lime/80 mx-auto my-5 rounded-full z-10 relative shadow-[0_0_10px_rgba(210,232,45,0.8)]"
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ delay: 0.7, duration: 0.8, ease: "anticipate" }}
+                />
+                <div className="absolute top-0 left-0 w-full h-1 bg-gray-200/20 rounded-full z-0" />
+              </div>
+
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.1, duration: 0.5 }}
+                className="urdu-text text-brand-lime text-3xl md:text-5xl font-bold mt-4 drop-shadow-[0_4px_4px_rgba(0,0,0,0.4)]"
+              >
                 اتفاق فاسٹنرز انڈسٹریز
-              </p>
+              </motion.p>
             </motion.div>
           </div>
 
