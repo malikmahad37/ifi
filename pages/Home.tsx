@@ -67,7 +67,7 @@ const Home: React.FC<HomeProps> = ({ categories, contact }) => {
               whileHover={{ scale: 1.05, rotate: [0, -2, 2, 0], transition: { duration: 0.3 } }}
               className="bg-brand-lime p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] shadow-2xl shadow-brand-lime/30 mb-6 md:mb-10 cursor-pointer relative z-10"
             >
-              <Logo className="w-24 h-24 md:w-56 md:h-56 filter drop-shadow-xl" />
+              <Logo className="w-24 h-24 md:w-56 md:h-56" />
               {/* Outer glowing ring for the logo */}
               <motion.div
                 initial={{ scale: 1, opacity: 0.5 }}
