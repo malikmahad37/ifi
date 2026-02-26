@@ -5,28 +5,14 @@ const NutBoltAnimation: React.FC = () => {
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-0 [.light-theme_&]:opacity-100 transition-opacity duration-1000 z-0">
             {/* Cinematic Background Layer */}
-            <motion.div
-                initial={{ scale: 1.05 }}
-                animate={{
-                    scale: 1.15,
-                    x: [-10, 0, -10],
-                    y: [-10, 0, -10]
-                }}
-                transition={{
-                    duration: 40,
-                    ease: "linear",
-                    repeat: Infinity,
-                    repeatType: "reverse"
-                }}
-                className="absolute inset-0 w-full h-full will-change-transform"
-            >
+            <div className="absolute inset-0 w-full h-full">
                 <img
                     src="https://images.unsplash.com/photo-1596461404942-368159bb7b0c?q=80&w=2000&auto=format&fit=crop"
                     alt="Nuts and Bolts Background"
-                    className="w-full h-full object-cover object-center opacity-60 grayscale-0"
+                    className="w-full h-full object-cover object-center opacity-60 grayscale-0 scale-110"
                     loading="eager"
                 />
-            </motion.div>
+            </div>
 
             {/* Responsive Overlays for Functionality */}
             {/* Mobile: Stronger fade to ensure text readability on small screens */}
