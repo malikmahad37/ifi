@@ -121,7 +121,7 @@ const Home: React.FC<HomeProps> = ({ categories, contact }) => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.1, duration: 0.5 }}
-                className="urdu-text text-brand-lime text-3xl md:text-5xl font-bold mt-4 drop-shadow-[0_4px_4px_rgba(0,0,0,0.4)]"
+                className="urdu-text text-brand-lime text-3xl md:text-5xl font-bold mt-4"
               >
                 اتفاق فاسٹنرز انڈسٹریز
               </motion.p>
@@ -131,9 +131,9 @@ const Home: React.FC<HomeProps> = ({ categories, contact }) => {
           <motion.div variants={itemVariants} className="pt-8">
             <Link to="/products">
               <motion.button
-                whileHover={{ scale: 1.02, backgroundColor: "rgba(var(--brand-lime), 0.9)" }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="bg-brand-lime text-bg-base font-black px-8 py-4 rounded-full text-sm md:text-base uppercase tracking-widest shadow-lg shadow-brand-lime/20 flex items-center gap-2 mx-auto"
+                className="bg-brand-lime text-black font-black px-8 py-4 rounded-full text-sm md:text-base uppercase tracking-widest shadow-lg shadow-brand-lime/20 flex items-center gap-2 mx-auto hover:brightness-110 transition-all"
               >
                 Explore Products <ArrowRight className="w-4 h-4" />
               </motion.button>
