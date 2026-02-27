@@ -53,6 +53,7 @@ const Footer: React.FC<FooterProps> = ({ contact }) => {
             <ul className="space-y-2.5">
               <li><Link to="/" className="text-theme-base/50 [.light-theme_&]:text-theme-base/80 hover:text-brand-lime [.light-theme_&]:hover:text-brand-text transition-all text-[10px] font-bold uppercase tracking-widest">Home</Link></li>
               <li><Link to="/products" className="text-theme-base/50 [.light-theme_&]:text-theme-base/80 hover:text-brand-lime [.light-theme_&]:hover:text-brand-text transition-all text-[10px] font-bold uppercase tracking-widest">Product Catalog</Link></li>
+              <li><Link to="/blog" className="text-theme-base/50 [.light-theme_&]:text-theme-base/80 hover:text-brand-lime [.light-theme_&]:hover:text-brand-text transition-all text-[10px] font-bold uppercase tracking-widest">Blog & News</Link></li>
               <li><Link to="/contact" className="text-theme-base/50 [.light-theme_&]:text-theme-base/80 hover:text-brand-lime [.light-theme_&]:hover:text-brand-text transition-all text-[10px] font-bold uppercase tracking-widest">Contact Sales</Link></li>
               <li><Link to="/login" className="text-theme-base/50 [.light-theme_&]:text-theme-base/80 hover:text-brand-lime [.light-theme_&]:hover:text-brand-text transition-all text-[10px] font-bold uppercase tracking-widest">Admin Login</Link></li>
             </ul>

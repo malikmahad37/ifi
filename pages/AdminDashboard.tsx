@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Check, Save, Upload, Info, MessageSquare, Trash2, Edit2, Archive, Package, LayoutDashboard, Inbox, Mail, FileText, X, ArrowLeft, Search, History } from 'lucide-react';
-import { Category, ProductSeries, ContactInfo, Inquiry } from '../types';
+import { Category, ProductSeries, ContactInfo, Inquiry, BlogPost } from '../types';
 import { migrateCategories } from '../lib/firebase';
 import { INITIAL_CATEGORIES } from '../constants';
 import { Toast, ToastType } from '../components/Toast';
@@ -13,10 +13,13 @@ interface AdminDashboardProps {
   onUpdateContact: (contact: ContactInfo) => void;
   inquiries: Inquiry[];
   onDeleteInquiry: (id: string) => void;
+  blogs: BlogPost[];
+  onSaveBlog: (blog: BlogPost) => void;
+  onDeleteBlog: (id: string) => void;
 }
 
-const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, contact, onUpdateContact, inquiries, onDeleteInquiry }) => {
-  const [activeTab, setActiveTab] = useState<'catalog' | 'inbox' | 'contact' | 'billing'>('catalog');
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, contact, onUpdateContact, inquiries, onDeleteInquiry, blogs, onSaveBlog, onDeleteBlog }) => {
+  const [activeTab, setActiveTab] = useState<'catalog' | 'inbox' | 'contact' | 'billing' | 'blogs'>('catalog');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Handle image upload and conversion to base64
@@ -169,14 +172,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
     setViewMode('edit-product');
   };
 
-  // --- INVOICE GENERATOR STATE ---
   interface InvoiceItem {
     id: string;
     description: string;
     weight: string;
     rate: string; // string key input handling
+    discountAmt: string; // fixed discount amount applied per line
     amount: number;
   }
+
 
   interface SavedInvoice {
     id: string;
@@ -238,7 +242,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
   const [invoiceTax, setInvoiceTax] = useState<number>(initialDraft?.tax || 0);
   const [invoiceNotes, setInvoiceNotes] = useState(initialDraft?.notes || '');
   const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>(initialDraft?.items || [
-    { id: Date.now().toString(), description: '', weight: '', rate: '', amount: 0 }
+    { id: Date.now().toString(), description: '', weight: '', rate: '', discountAmt: '', amount: 0 }
   ]);
 
   // Draft Auto-Save
@@ -259,17 +263,18 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
     setInvoiceItems(prev => prev.map(item => {
       if (item.id !== id) return item;
       const updated = { ...item, [field]: value };
-      if (field === 'weight' || field === 'rate') {
+      if (field === 'weight' || field === 'rate' || field === 'discountAmt') {
         const w = parseFloat(updated.weight) || 0;
         const r = parseFloat(updated.rate) || 0;
-        updated.amount = w * r;
+        const d = parseFloat(updated.discountAmt) || 0;
+        updated.amount = (w * r) - d;
       }
       return updated;
     }));
   };
 
   const addInvoiceItem = () => {
-    setInvoiceItems(prev => [...prev, { id: Date.now().toString(), description: '', weight: '', rate: '', amount: 0 }]);
+    setInvoiceItems(prev => [...prev, { id: Date.now().toString(), description: '', weight: '', rate: '', discountAmt: '', amount: 0 }]);
   };
 
   const removeInvoiceItem = (id: string) => {
@@ -423,7 +428,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
             { id: 'catalog', label: 'CATALOG', icon: Package },
             { id: 'inbox', label: `INBOX (${inquiries.length})`, icon: Inbox },
             { id: 'contact', label: 'BUSINESS', icon: Info },
-            { id: 'billing', label: 'BILLING', icon: FileText }
+            { id: 'billing', label: 'BILLING', icon: FileText },
+            { id: 'blogs', label: 'BLOGS', icon: FileText }
           ].map(tab => (
             <button
               key={tab.id}
@@ -857,7 +863,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                         {invoiceItems.map((item, idx) => (
                           <div key={item.id} className="grid grid-cols-12 gap-2 items-center bg-theme-base/5 p-3 rounded-xl border border-theme-base/5 mb-2">
                             <div className="col-span-1 text-center text-[9px] text-theme-base/30 [.light-theme_&]:text-theme-base/70 font-bold">{idx + 1}</div>
-                            <div className="col-span-5">
+                            <div className="col-span-4">
                               <input
                                 list="products-list"
                                 placeholder="Product Description"
@@ -884,6 +890,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                                 placeholder="Rate"
                                 value={item.rate}
                                 onChange={e => updateInvoiceItem(item.id, 'rate', e.target.value)}
+                                className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-mono focus:border-brand-lime/50 transition-colors focus:ring-0 text-center"
+                              />
+                            </div>
+                            <div className="col-span-1">
+                              <input
+                                type="number"
+                                placeholder="Disc."
+                                value={item.discountAmt}
+                                onChange={e => updateInvoiceItem(item.id, 'discountAmt', e.target.value)}
                                 className="w-full bg-transparent border-0 border-b border-theme-base/10 px-2 py-1 text-theme-base text-xs font-mono focus:border-brand-lime/50 transition-colors focus:ring-0 text-center"
                               />
                             </div>
@@ -981,6 +996,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                   <th className="py-2 text-xs font-black uppercase">Description</th>
                   <th className="py-2 text-xs font-black uppercase text-center">Weight / Qty</th>
                   <th className="py-2 text-xs font-black uppercase text-center">Rate</th>
+                  <th className="py-2 text-xs font-black uppercase text-center">Disc.</th>
                   <th className="py-2 text-xs font-black uppercase text-right">Amount</th>
                 </tr>
               </thead>
@@ -990,23 +1006,28 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
                     <td className="py-3 text-sm font-medium">{item.description}</td>
                     <td className="py-3 text-sm text-center font-mono">{item.weight}</td>
                     <td className="py-3 text-sm text-center font-mono">{item.rate}</td>
+                    <td className="py-3 text-sm text-center font-mono">{item.discountAmt || '-'}</td>
                     <td className="py-3 text-sm text-right font-mono font-bold">{item.amount.toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
                 <tr className="border-t-2 border-black">
-                  <td colSpan={3} className="py-2 text-right text-xs font-bold uppercase pr-8 text-gray-500">Subtotal</td>
+                  <td colSpan={4} className="py-2 text-right text-xs font-bold uppercase pr-8 text-gray-500">Subtotal</td>
                   <td className="py-2 text-right text-sm font-bold font-mono">Rs. {subTotal.toLocaleString()}</td>
                 </tr>
                 {invoiceDiscount > 0 && (
                   <tr>
-                    <td colSpan={3} className="py-2 text-right text-xs font-bold uppercase pr-8 text-gray-500">Discount</td>
+                    <td colSpan={4} className="py-2 text-right text-xs font-bold uppercase pr-8 text-gray-500">Overall Discount</td>
                     <td className="py-2 text-right text-sm font-bold font-mono">- Rs. {invoiceDiscount.toLocaleString()}</td>
                   </tr>
                 )}
+                <tr>
+                  <td colSpan={4} className="py-2 text-right text-xs font-bold uppercase pr-8 text-gray-500">Tax</td>
+                  <td className="py-2 text-right text-sm font-bold font-mono">Rs. {taxAmount.toLocaleString()}</td>
+                </tr>
                 <tr className="border-t border-black">
-                  <td colSpan={3} className="py-4 text-right text-sm font-black uppercase pr-8">Grand Total</td>
+                  <td colSpan={4} className="py-4 text-right text-sm font-black uppercase pr-8">Grand Total</td>
                   <td className="py-4 text-right text-lg font-black font-mono">Rs. {grandTotal.toLocaleString()}</td>
                 </tr>
               </tfoot>
@@ -1028,6 +1049,109 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ categories, onUpdate, c
         </div>
       </div>
 
+
+      {activeTab === 'blogs' && (
+        <section className="space-y-6 animate-fade-in">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-theme-base/5 pb-6">
+             <div>
+                <h2 className="text-xl font-black text-theme-base uppercase tracking-widest">Blog Management</h2>
+                <p className="text-xs text-theme-base/40">Manage your public news and articles</p>
+             </div>
+             <button
+               onClick={() => {
+                 onSaveBlog({
+                   id: Date.now().toString(),
+                   title: 'New Article',
+                   titleUrdu: 'نیا مضمون',
+                   content: 'Write your content here...',
+                   contentUrdu: 'یہاں لکھیں...',
+                   excerpt: 'Short description...',
+                   excerptUrdu: 'مختصر تفصیل...',
+                   date: new Date().toISOString(),
+                   image: 'https://images.unsplash.com/photo-1581092335397-9583eb92d232',
+                   author: 'Admin'
+                 });
+                 showToast('Created Draft Blog! Click edit to fill content.', 'success');
+               }}
+               className="flex items-center gap-2 bg-brand-lime text-black px-6 py-3 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-brand-lime/10"
+             >
+               <Plus className="w-4 h-4" /> Create New Post
+             </button>
+          </div>
+
+          {blogs.length === 0 ? (
+             <div className="glass-panel p-20 rounded-[2.5rem] text-center">
+               <BookOpen className="w-10 h-10 text-theme-base/5 mx-auto mb-4" />
+               <p className="text-theme-base/20 text-xs font-black uppercase tracking-widest">No blog posts found</p>
+             </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-6">
+              {blogs.map(blog => (
+                <div key={blog.id} className="glass-panel p-6 rounded-3xl border border-theme-base/5 space-y-6">
+                   <div className="flex items-start justify-between">
+                     <div className="flex items-center gap-4 flex-grow">
+                        <img src={blog.image} className="w-20 h-20 rounded-xl object-cover" />
+                        <div className="flex-grow">
+                           <input 
+                             value={blog.title} 
+                             onChange={e => onSaveBlog({ ...blog, title: e.target.value })} 
+                             className="w-full bg-transparent text-lg font-black text-theme-base border-b border-theme-base/5 hover:border-theme-base/20 focus:outline-none focus:border-brand-lime transition-colors mb-1" 
+                           />
+                           <input 
+                              dir="rtl"
+                             value={blog.titleUrdu} 
+                             onChange={e => onSaveBlog({ ...blog, titleUrdu: e.target.value })} 
+                             className="w-full bg-transparent text-lg font-bold text-brand-lime urdu-text border-b border-theme-base/5 hover:border-theme-base/20 focus:outline-none focus:border-brand-lime transition-colors" 
+                           />
+                        </div>
+                     </div>
+                     <button onClick={() => {
+                        if (window.confirm('Delete this post permanently?')) onDeleteBlog(blog.id);
+                     }} className="p-2 text-red-500/30 hover:text-red-500 transition-colors ml-4 justify-self-start">
+                        <Trash2 className="w-5 h-5" />
+                     </button>
+                   </div>
+                   
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                       <div className="space-y-2">
+                          <label className="text-[10px] uppercase font-black tracking-widest text-theme-base/40">English Content (HTML/Text)</label>
+                          <textarea 
+                            value={blog.content} 
+                            onChange={e => onSaveBlog({ ...blog, content: e.target.value })} 
+                            className="bg-theme-base/5 border border-theme-base/5 rounded-xl text-theme-base p-4 w-full h-40 resize-y text-sm leading-relaxed" 
+                          />
+                       </div>
+                       <div className="space-y-2">
+                          <label className="text-[10px] uppercase font-black tracking-widest text-theme-base/40 block text-right">Urdu Content</label>
+                          <textarea 
+                            dir="rtl"
+                            value={blog.contentUrdu} 
+                            onChange={e => onSaveBlog({ ...blog, contentUrdu: e.target.value })} 
+                            className="bg-theme-base/5 border border-theme-base/5 rounded-xl urdu-text text-brand-text p-4 w-full h-40 resize-y text-lg leading-relaxed" 
+                          />
+                       </div>
+                   </div>
+
+                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="space-y-2">
+                          <label className="text-[10px] uppercase font-black tracking-widest text-theme-base/40">Excerpt (EN)</label>
+                          <input value={blog.excerpt} onChange={e => onSaveBlog({ ...blog, excerpt: e.target.value })} className="bg-theme-base/5 border border-theme-base/5 rounded-lg text-theme-base px-3 py-2 w-full text-xs" />
+                      </div>
+                      <div className="space-y-2">
+                          <label className="text-[10px] uppercase font-black tracking-widest text-theme-base/40 text-right block">Excerpt (UR)</label>
+                          <input dir="rtl" value={blog.excerptUrdu} onChange={e => onSaveBlog({ ...blog, excerptUrdu: e.target.value })} className="bg-theme-base/5 border border-theme-base/5 rounded-lg urdu-text text-brand-text px-3 py-2 w-full text-xs text-right" />
+                      </div>
+                      <div className="space-y-2">
+                          <label className="text-[10px] uppercase font-black tracking-widest text-theme-base/40">Cover Image URL / base64</label>
+                          <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, (base64) => onSaveBlog({ ...blog, image: base64 }))} className="w-full bg-input-bg border border-theme-base/5 rounded-lg p-2 text-[9px] text-theme-base/30 [.light-theme_&]:text-theme-base/70 font-mono file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:uppercase file:font-black file:tracking-widest file:bg-brand-lime file:text-brand-dark hover:file:bg-brand-lime/80" />
+                      </div>
+                   </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       {activeTab === 'contact' && (
         <section className="space-y-10 animate-fade-in">

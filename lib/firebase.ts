@@ -74,3 +74,30 @@ export const deleteInquiry = async (id: string) => {
 export const migrateCategories = async (categories: Category[]) => {
     await set(ref(db, 'categories'), categories);
 };
+
+// --- Blogs Operations ---
+
+export const subscribeToBlogs = (callback: (blogs: import('../types').BlogPost[]) => void) => {
+    const blogsRef = ref(db, 'blogs');
+    return onValue(blogsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            const formattedData = Object.keys(data).map(key => ({
+                ...data[key],
+                id: key
+            }));
+            callback(formattedData as import('../types').BlogPost[]);
+        } else {
+            callback([]);
+        }
+    });
+};
+
+export const saveBlog = async (blog: import('../types').BlogPost) => {
+    await set(ref(db, `blogs/${blog.id}`), blog);
+};
+
+export const deleteBlog = async (id: string) => {
+    await remove(ref(db, `blogs/${id}`));
+};
+

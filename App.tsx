@@ -12,11 +12,13 @@ import Contact from './pages/Contact';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import PageTransition from './components/PageTransition';
-import { Category, ContactInfo, Inquiry } from './types';
+import BlogList from './pages/BlogList';
+import BlogPostView from './pages/BlogPostView';
+import { Category, ContactInfo, Inquiry, BlogPost } from './types';
 import { INITIAL_CATEGORIES, INITIAL_CONTACT } from './constants';
 
 import { ThemeProvider } from './context/ThemeContext';
-import { subscribeToCategories, subscribeToInquiries, saveInquiry, deleteInquiry, syncCategories } from './lib/firebase';
+import { subscribeToCategories, subscribeToInquiries, saveInquiry, deleteInquiry, syncCategories, subscribeToBlogs, saveBlog, deleteBlog } from './lib/firebase';
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -51,6 +53,17 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     const unsubscribe = subscribeToInquiries((data) => {
       setInquiries(data);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Blogs State
+  const [blogs, setBlogs] = useState<BlogPost[]>([]);
+
+  // Real-time subscription for Blogs
+  useEffect(() => {
+    const unsubscribe = subscribeToBlogs((data) => {
+      setBlogs(data);
     });
     return () => unsubscribe();
   }, []);
@@ -97,6 +110,24 @@ const AppContent: React.FC = () => {
     localStorage.removeItem('ifi_admin_auth');
   };
 
+  const handleSaveBlog = async (blog: BlogPost) => {
+    try {
+      await saveBlog(blog);
+    } catch (error) {
+      console.error("FAILED TO SAVE BLOG:", error);
+      alert("Error saving blog: " + (error as any).message);
+    }
+  };
+
+  const handleDeleteBlog = async (id: string) => {
+    try {
+      await deleteBlog(id);
+    } catch (error) {
+      console.error("FAILED TO DELETE BLOG:", error);
+      alert("Error deleting blog: " + (error as any).message);
+    }
+  };
+
   return (
     <ThemeProvider>
       <div className="flex flex-col min-h-screen transition-colors duration-300 overflow-x-hidden">
@@ -121,6 +152,16 @@ const AppContent: React.FC = () => {
                   <CategoryView categories={categories} contact={contact} />
                 </PageTransition>
               } />
+              <Route path="/blog" element={
+                <PageTransition>
+                  <BlogList blogs={blogs} />
+                </PageTransition>
+              } />
+              <Route path="/blog/:id" element={
+                <PageTransition>
+                  <BlogPostView blogs={blogs} contact={contact} />
+                </PageTransition>
+              } />
               <Route path="/contact" element={
                 <PageTransition>
                   <Contact contact={contact} onAddInquiry={handleAddInquiry} />
@@ -143,6 +184,9 @@ const AppContent: React.FC = () => {
                         onUpdateContact={handleUpdateContact}
                         inquiries={inquiries}
                         onDeleteInquiry={handleDeleteInquiry}
+                        blogs={blogs}
+                        onSaveBlog={handleSaveBlog}
+                        onDeleteBlog={handleDeleteBlog}
                       />
                     ) : <Navigate to="/login" />}
                   </PageTransition>

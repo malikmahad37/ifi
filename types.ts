@@ -34,3 +34,16 @@ export interface Inquiry {
   message: string;
   date: string;
 }
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  titleUrdu: string;
+  content: string;
+  contentUrdu: string;
+  excerpt: string;
+  excerptUrdu: string;
+  date: string;
+  image: string;
+  author: string;
+}
