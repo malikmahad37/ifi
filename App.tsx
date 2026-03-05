@@ -152,16 +152,6 @@ const AppContent: React.FC = () => {
                   <CategoryView categories={categories} contact={contact} />
                 </PageTransition>
               } />
-              <Route path="/blog" element={
-                <PageTransition>
-                  <BlogList blogs={blogs} />
-                </PageTransition>
-              } />
-              <Route path="/blog/:id" element={
-                <PageTransition>
-                  <BlogPostView blogs={blogs} contact={contact} />
-                </PageTransition>
-              } />
               <Route path="/contact" element={
                 <PageTransition>
                   <Contact contact={contact} onAddInquiry={handleAddInquiry} />

@@ -128,12 +128,12 @@ const Home: React.FC<HomeProps> = ({ categories, contact }) => {
             </motion.div>
           </div>
 
-          <motion.div variants={itemVariants} className="pt-8">
+          <motion.div variants={itemVariants} className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/products">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="bg-brand-lime text-black font-black px-8 py-4 rounded-full text-sm md:text-base uppercase tracking-widest shadow-lg shadow-brand-lime/20 flex items-center gap-2 mx-auto hover:brightness-110 transition-all"
+                className="bg-brand-lime text-black font-black px-8 py-4 rounded-full text-sm md:text-base uppercase tracking-widest shadow-lg shadow-brand-lime/20 flex items-center gap-2 hover:brightness-110 transition-all"
               >
                 Explore Products <ArrowRight className="w-4 h-4" />
               </motion.button>
@@ -237,6 +237,31 @@ const Home: React.FC<HomeProps> = ({ categories, contact }) => {
           ))}
         </div>
       </section>
+
+      {/* Editable Business Text Section */}
+      {(contact.businessText || contact.businessTextUrdu) && (
+        <section className="py-16 md:py-24 px-4 bg-theme-base/[0.03] border-t border-theme-base/5 relative">
+          <div className="max-w-4xl mx-auto text-center space-y-8 relative z-10">
+            {contact.businessText && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="glass-panel p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] border border-theme-base/5 shadow-2xl relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 p-8 opacity-5">
+                  <Logo className="w-64 h-64 grayscale" />
+                </div>
+                <h3 className="text-brand-lime text-xs md:text-sm font-black uppercase tracking-[0.3em] mb-6">About Us</h3>
+                <p className="text-theme-base/80 text-lg md:text-2xl font-medium leading-relaxed max-w-3xl mx-auto whitespace-pre-wrap relative z-10">
+                  {contact.businessText}
+                </p>
+              </motion.div>
+            )}
+          </div>
+        </section>
+      )}
     </div>
   );
 };

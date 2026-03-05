@@ -8,6 +8,7 @@ export interface ProductSeries {
   descriptionUrdu: string;
   sizes: string[];
   specifications?: string[];
+  discountAmt?: string;
 }
 
 export interface Category {
@@ -25,6 +26,8 @@ export interface ContactInfo {
   whatsapp: string;
   email: string;
   address: string;
+  businessText?: string;
+  businessTextUrdu?: string;
 }
 
 export interface Inquiry {

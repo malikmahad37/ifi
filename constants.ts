@@ -7,7 +7,9 @@ export const INITIAL_CONTACT: ContactInfo = {
   phone: "+923239645001",
   whatsapp: "+923239645001",
   email: "",
-  address: "Lahore, Pakistan"
+  address: "Lahore, Pakistan",
+  businessText: "",
+  businessTextUrdu: ""
 };
 
 export const LOGO_URL = "/logo.png";
