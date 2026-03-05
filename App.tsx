@@ -84,7 +84,7 @@ const AppContent: React.FC = () => {
       await syncCategories(categories, newCategories);
     } catch (error) {
       console.error("FAILED TO SYNC:", error);
-      alert("Error saving data: " + (error as any).message);
+      alert("Error saving data: " + JSON.stringify(error, null, 2));
     }
   };
 
