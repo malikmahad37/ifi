@@ -44,14 +44,24 @@ export const subscribeToCategories = (callback: (categories: Category[]) => void
 };
 
 export const syncCategories = async (currentCategories: Category[], newCategories: Category[]) => {
-    // Basic sync: delete all and insert new.
-    // In production, consider upsert or more specific updates.
-    await supabase.from('categories').delete().neq('id', 'dummy_value_to_delete_all'); // Hack to delete all if needed, or better approach below
+    // Delete all existing categories to maintain an exact sync
+    await supabase.from('categories').delete().neq('id', 'dummy_value_to_delete_all');
 
-    // Better approach: Since we replace all, let's just use upsert if they have IDs
+    // Insert new categories with proper serialization
     if (newCategories.length > 0) {
-        const { error } = await supabase.from('categories').upsert(newCategories);
-        if (error) console.error("Error syncing categories:", error);
+        // Supabase expects JSON arrays/objects to be properly formattted or passed as is depending on the table structure.
+        // Assuming "series" is a JSONB column in "categories".
+        const toInsert = newCategories.map(cat => ({
+            ...cat,
+            // Ensure series is correctly passed as JSON
+            series: cat.series || []
+        }));
+
+        const { error } = await supabase.from('categories').insert(toInsert);
+        if (error) {
+            console.error("Error syncing categories:", error);
+            throw error; // Throw so App.tsx can catch it and alert the user instead of failing silently
+        }
     }
 };
 
