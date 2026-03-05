@@ -18,7 +18,7 @@ import { Category, ContactInfo, Inquiry, BlogPost } from './types';
 import { INITIAL_CATEGORIES, INITIAL_CONTACT } from './constants';
 
 import { ThemeProvider } from './context/ThemeContext';
-import { subscribeToCategories, subscribeToInquiries, saveInquiry, deleteInquiry, syncCategories, subscribeToBlogs, saveBlog, deleteBlog } from './lib/firebase';
+import { subscribeToCategories, subscribeToInquiries, saveInquiry, deleteInquiry, syncCategories, subscribeToBlogs, saveBlog, deleteBlog } from './lib/supabase';
 
 const AppContent: React.FC = () => {
   const location = useLocation();
